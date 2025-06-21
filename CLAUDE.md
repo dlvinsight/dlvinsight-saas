@@ -35,7 +35,7 @@ npm run db:migrate      # Apply migrations to database
 npm run db:studio       # Open Drizzle Studio (database browser)
 
 # Database Connection (Production)
-# Password: yvYWVYXsrUTZyuKZn21khcKYG+8tkA18+mGCkFYuL2I=
+# Password stored in: /tmp/db_password.txt (not committed to git)
 PGPASSWORD="$(cat /tmp/db_password.txt)" /usr/local/opt/postgresql@15/bin/psql -h 34.116.202.95 -U postgres -d dlvinsight_prod
 gcloud sql connect dlvinsight-db --user=postgres --database=dlvinsight_prod
 
