@@ -42,9 +42,11 @@
   },
   "PricingPlan": {
     "free_plan_name": "Free",
+    "basic_plan_name": "Basic",
     "premium_plan_name": "Premium",
     "enterprise_plan_name": "Enterprise",
     "free_plan_description": "For individuals",
+    "basic_plan_description": "For growing businesses",
     "premium_plan_description": "For small teams",
     "enterprise_plan_description": "For industry leaders",
     "feature_team_member": "{number} Team Members",
