@@ -17,42 +17,71 @@ Multi-tenant Amazon analytics platform with forecasting capabilities - currently
 ## Common Development Commands
 
 ```bash
-# Development - To be configured based on chosen stack
+# Development
+npm run dev              # Start development server (Next.js + Spotlight)
+npm run build           # Build for production
+npm run start           # Start production server
 
-# Airbyte Commands (for Amazon data sync)
-# TBD based on deployment method (Docker/Cloud)
+# Code Quality
+npm run lint            # Run ESLint
+npm run lint:fix        # Fix ESLint issues
+npm run check-types     # TypeScript type checking
+npm run test            # Run unit tests
+npm run test:e2e        # Run E2E tests
 
-# Database
-# TBD based on chosen ORM/database solution
+# Database (Drizzle ORM)
+npm run db:generate     # Generate migrations after schema changes
+npm run db:migrate      # Apply migrations to database
+npm run db:studio       # Open Drizzle Studio (database browser)
+
+# Git & Commits
+npm run commit          # Use Commitizen for conventional commits
+
+# Storybook
+npm run storybook       # Start Storybook dev server
+npm run storybook:build # Build Storybook
 ```
 
-## Architecture Overview (Planning Phase)
+## Architecture Overview
 
-**Planned Technology Stack:**
+**Technology Stack:**
 
-- **SaaS Foundation:** Open-source SaaS boilerplate (to be selected)
-- **Data Integration:** Airbyte for Amazon SP-API synchronization
-- **Authentication:** TBD (depends on chosen SaaS solution)
-- **Databases:** PostgreSQL (tenant data) + BigQuery/similar (analytics)
-- **Deployment:** Cloud platform (TBD)
-- **APIs:** Amazon SP-API via Airbyte connectors
+- **Framework:** Next.js 14.2.25 with App Router + React 18.3.1 + TypeScript 5.6.3
+- **Authentication:** Clerk (multi-tenant with organizations)
+- **Database:** PostgreSQL with Drizzle ORM + Row Level Security
+- **UI:** Tailwind CSS + Shadcn/UI + Radix UI primitives
+- **Payments:** Stripe (subscriptions + billing)
+- **Data Integration:** Airbyte-ready schema for Amazon SP-API
+- **Monitoring:** Sentry + Logtail + Pino structured logging
+- **Testing:** Vitest (unit) + Playwright (E2E)
 
-**Planned DDD Structure:**
+**Project Structure:**
 ```
-src/domain/
-├── client-management/      # Multi-tenant context
-├── product-management/     # Product catalog
-├── financial-analytics/    # P&L calculations  
-├── forecasting/           # Prediction engine
-├── marketplace-integration/ # Amazon SP-API via Airbyte
-└── export/                # Data export
+src/
+├── app/[locale]/          # Internationalized routes
+│   ├── (auth)/           # Protected routes (dashboard, profiles)
+│   └── (unauth)/         # Public routes (landing, pricing)
+├── components/ui/         # Shadcn/UI components
+├── features/             # Feature modules (auth, billing, dashboard, landing)
+├── libs/                 # Core utilities (DB, Env, Logger, i18n)
+├── models/Schema.ts      # Database schema (Drizzle)
+└── types/                # TypeScript definitions
 ```
+
+**Database Architecture:**
+- Multi-tenant with organization-based isolation
+- Amazon analytics tables: credentials, orders, products, financial_events
+- Row Level Security enforced via JWT organization claims
+- Airbyte-compatible schema for SP-API data ingestion
 
 **Current Project Status:**
-- ⏳ Planning phase - evaluating open-source solutions
-- ⏳ Researching Airbyte Amazon SP-API connector capabilities
-- ⏳ Defining MVP scope and timeline
-- ⏳ Technology stack selection in progress
+- ✅ SaaS boilerplate foundation established (ixartz/SaaS-Boilerplate)
+- ✅ Environment configuration completed
+- ✅ Database schema designed for Amazon analytics
+- ✅ Development workflow configured
+- ⏳ Airbyte integration setup pending
+- ⏳ Amazon SP-API connector configuration pending
+- ⏳ UI components for analytics dashboard pending
 
 ## Development Rules
 
@@ -69,24 +98,79 @@ src/domain/
 - Only mention AI assistance in README.md if needed
 - Focus tokens on actual development, not attribution
 
-## Error Response Format
+## Key Development Patterns
 
-**API Error Responses:**
-```json
-{
-  "error": "ValidationError",
-  "message": "Specific error message",
-  "timestamp": "2025-06-16T10:23:39.875Z"
-}
+**Authentication Flow:**
+- All dashboard routes require Clerk authentication
+- Organization selection is mandatory for multi-tenant access
+- Use `auth()` from `@clerk/nextjs` for server-side auth checks
+- Locale-aware sign-in/sign-up redirects
+
+**Database Queries:**
+```typescript
+// Always filter by organizationId for multi-tenant queries
+const results = await db
+  .select()
+  .from(schema.tableName)
+  .where(eq(schema.tableName.organizationId, organizationId));
 ```
 
-**Test Expectations:**
-```javascript
-expect(response.body).toMatchObject({
-  error: 'ValidationError',  // NOT 'Validation Error'
-  message: 'Expected error message'
+**Component Patterns:**
+- Use Shadcn/UI components from `@/components/ui/*`
+- Implement variants with `class-variance-authority`
+- Dark mode support via `next-themes`
+
+**Environment Variables:**
+- Validated at runtime via `@/libs/Env.ts`
+- Access with `Env.VARIABLE_NAME`
+- Client variables prefixed with `NEXT_PUBLIC_`
+
+**Testing Patterns:**
+```typescript
+// Unit tests with Vitest
+describe('FeatureName', () => {
+  it('should behavior description', () => {
+    // Test implementation
+  });
+});
+
+// E2E tests with Playwright
+test('user flow description', async ({ page }) => {
+  await page.goto('/path');
+  // Test implementation
 });
 ```
+
+## Airbyte Integration Strategy
+
+**Amazon SP-API Data Synchronization:**
+- Database schema designed for Airbyte ETL pipelines
+- Amazon analytics tables ready for Airbyte connector output
+- Incremental sync support with tracking columns
+- Multi-marketplace data handling
+
+**Airbyte Setup (Pending):**
+- Use Airbyte Amazon Seller Partner connector
+- Configure incremental sync for orders, products, financial events
+- Set up transformation for profit/loss calculations
+- Schedule regular data refreshes
+
+**Data Flow:**
+1. Airbyte pulls data from Amazon SP-API
+2. Data lands in PostgreSQL analytics tables
+3. Application processes and displays analytics
+4. Real-time profit calculations from synchronized data
+
+## Custom Shortcuts
+
+--GCP -> git commit push
+--WD -> audit the codebase, think hard and write a doc, a .md file in /docs, named AUDIT-\*\*\*.The doc takes the form of a step by step action checklist. you don't change anything else, just focus on the .md (and then --GCP). when finished, point to the filepath of the doc.
+--AP -> turn the following audit into a step by step list of actions, an actual action plan with checkboxes. The naming format is /docs/ACTION-PLAN-**\*** (then --GCP)
+--EXE execute the step by step plan from file, at each step think, check the corresponding checkboxes, and --GPC
+--TERMINATOR -> --EXE + --DS
+--CD -> check obsolete .md and ditch them (+ --GCP)
+--DS -> don't stop till totally finished
+
 
 ## Documentation & Planning
 
