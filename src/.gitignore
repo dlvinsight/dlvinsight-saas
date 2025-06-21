@@ -44,6 +44,9 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# Database credentials
+/tmp/db_password.txt
+
 # local folder
 local
 

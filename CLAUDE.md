@@ -34,6 +34,11 @@ npm run db:generate     # Generate migrations after schema changes
 npm run db:migrate      # Apply migrations to database
 npm run db:studio       # Open Drizzle Studio (database browser)
 
+# Database Connection (Production)
+# Password: yvYWVYXsrUTZyuKZn21khcKYG+8tkA18+mGCkFYuL2I=
+PGPASSWORD="$(cat /tmp/db_password.txt)" /usr/local/opt/postgresql@15/bin/psql -h 34.116.202.95 -U postgres -d dlvinsight_prod
+gcloud sql connect dlvinsight-db --user=postgres --database=dlvinsight_prod
+
 # Git & Commits
 npm run commit          # Use Commitizen for conventional commits
 
@@ -70,15 +75,46 @@ src/
 
 **Database Architecture:**
 - Multi-tenant with organization-based isolation
-- Amazon analytics tables: credentials, orders, products, financial_events
+- Amazon analytics tables: seller_accounts, sales_data, products, financial_events, inventory, report_syncs
 - Row Level Security enforced via JWT organization claims
 - Airbyte-compatible schema for SP-API data ingestion
+
+**Database Configuration:**
+
+*Local Development:*
+- PostgreSQL running locally
+- Database: `dlvinsight_dev`
+- Connection: `postgresql://admin@localhost:5432/dlvinsight_dev`
+- Environment: `.env.local`
+
+*Production (Google Cloud SQL):*
+- Instance: `dlvinsight-db` (PostgreSQL 17)
+- Project: `dlvinsight-profit-analytics`
+- Region: `europe-central2-b`
+- Database: `dlvinsight_prod`
+- Public IP: `34.116.202.95`
+- Password stored in: `/tmp/db_password.txt` (local development only)
+- Cloud Build DATABASE_URL: `postgresql://postgres:PASSWORD@/dlvinsight_prod?host=/cloudsql/dlvinsight-profit-analytics:europe-central2:dlvinsight-db`
+- Direct connection: `postgresql://postgres:PASSWORD@34.116.202.95:5432/dlvinsight_prod?sslmode=disable`
+
+*Tables Created:*
+- `organization` - Multi-tenant organization management
+- `seller_accounts` - Amazon seller account credentials
+- `sales_data` - Amazon sales transactions
+- `products` - Product catalog
+- `inventory` - Inventory levels
+- `financial_events` - Amazon financial data
+- `report_syncs` - Data synchronization tracking
+- `todo` - Application todos
 
 **Current Project Status:**
 - ✅ SaaS boilerplate foundation established (ixartz/SaaS-Boilerplate)
 - ✅ Environment configuration completed
 - ✅ Database schema designed for Amazon analytics
 - ✅ Development workflow configured
+- ✅ Production database setup completed (Cloud SQL)
+- ✅ Database migrations applied to production
+- ✅ Cloud Build configuration ready
 - ⏳ Airbyte integration setup pending
 - ⏳ Amazon SP-API connector configuration pending
 - ⏳ UI components for analytics dashboard pending
