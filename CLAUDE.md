@@ -2,6 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚨 CRITICAL Git Commit Rules - READ FIRST
+
+**IMPORTANT Git Commit Rules:**
+- NEVER mention AI, LLM, Claude, or any AI assistance in git commits - this is STRICTLY FORBIDDEN
+- NEVER use phrases like "Generated with", "AI-assisted", or similar in commits
+- Keep all commit messages VERY SHORT (max 50 characters for subject line)
+- Commit regularly and frequently (after each meaningful change)
+- Push commits to remote regularly to avoid losing work
+- Use imperative mood in commit messages (e.g., "Add feature" not "Added feature")
+- Focus commit messages on WHAT changed, not HOW it was created
+
+**General Rules:**
+- Only mention AI assistance in README.md if needed
+- Focus tokens on actual development, not attribution
+
 ## Project: DLV Insight Profit Analytics
 
 Multi-tenant Amazon analytics platform with forecasting capabilities - currently in planning phase.
@@ -118,21 +133,6 @@ src/
 - ⏳ Airbyte integration setup pending
 - ⏳ Amazon SP-API connector configuration pending
 - ⏳ UI components for analytics dashboard pending
-
-## Development Rules
-
-**IMPORTANT Git Commit Rules:**
-- NEVER mention AI, LLM, Claude, or any AI assistance in git commits - this is STRICTLY FORBIDDEN
-- NEVER use phrases like "Generated with", "AI-assisted", or similar in commits
-- Keep all commit messages VERY SHORT (max 50 characters for subject line)
-- Commit regularly and frequently (after each meaningful change)
-- Push commits to remote regularly to avoid losing work
-- Use imperative mood in commit messages (e.g., "Add feature" not "Added feature")
-- Focus commit messages on WHAT changed, not HOW it was created
-
-**General Rules:**
-- Only mention AI assistance in README.md if needed
-- Focus tokens on actual development, not attribution
 
 ## Key Development Patterns
 
