@@ -1,0 +1,21 @@
+[[build.env]]
+name = "NODE_ENV"
+value = "production"
+
+[[build.env]]
+name = "NPM_CONFIG_PRODUCTION"
+value = "false"
+
+[build]
+builder = "gcr.io/buildpacks/builder:v1"
+
+[[build.buildpacks]]
+id = "google.nodejs.runtime"
+
+[[build.buildpacks]]
+id = "google.nodejs.npm-install"
+[build.buildpacks.env]
+NPM_CONFIG_PRODUCTION = "false"
+
+[[build.buildpacks]]
+id = "google.nodejs.build"
