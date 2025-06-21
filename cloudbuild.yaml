@@ -1,4 +1,19 @@
 steps:
+  # Debug substitution variables
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "=== Debug Substitution Variables ==="
+        echo "CLERK_PUBLISHABLE_KEY: $_CLERK_PUBLISHABLE_KEY"
+        echo "CLERK_SECRET_KEY: $_CLERK_SECRET_KEY"
+        echo "CLERK_SIGN_IN_URL: $_CLERK_SIGN_IN_URL"
+        echo "CLERK_SIGN_UP_URL: $_CLERK_SIGN_UP_URL"
+        echo "DATABASE_URL: $_DATABASE_URL"
+        echo "BILLING_PLAN_ENV: $_BILLING_PLAN_ENV"
+        echo "=================================="
+
   # Build the container image using Docker
   - name: 'gcr.io/cloud-builders/docker'
     args:

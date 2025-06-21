@@ -11,7 +11,7 @@ jiti('./src/libs/Env');
 const withNextIntlConfig = withNextIntl('./src/libs/i18n.ts');
 
 /** @type {import('next').NextConfig} */
-let nextConfig = withNextIntlConfig({
+const nextConfig = {
   eslint: {
     dirs: ['.'],
   },
@@ -21,23 +21,10 @@ let nextConfig = withNextIntlConfig({
   experimental: {
     serverComponentsExternalPackages: ['@electric-sql/pglite'],
   },
-});
-
-// Only apply bundle analyzer in development when explicitly enabled
-if (process.env.ANALYZE === 'true') {
-  try {
-    const withBundleAnalyzer = (await import('@next/bundle-analyzer')).default;
-    const bundleAnalyzer = withBundleAnalyzer({
-      enabled: true,
-    });
-    nextConfig = bundleAnalyzer(nextConfig);
-  } catch (e) {
-    console.warn('Bundle analyzer not available in production build');
-  }
-}
+};
 
 export default withSentryConfig(
-  nextConfig,
+  withNextIntlConfig(nextConfig),
   {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options

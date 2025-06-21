@@ -1,0 +1,69 @@
+steps:
+  # Install dependencies
+  - name: 'gcr.io/cloud-builders/npm'
+    dir: 'src'
+    args: ['ci', '--omit=dev']
+    env:
+      - 'NODE_ENV=production'
+
+  # Build the Next.js application
+  - name: 'gcr.io/cloud-builders/npm'
+    dir: 'src'
+    args: ['run', 'build']
+    env:
+      - 'NODE_ENV=production'
+      - 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$_CLERK_PUBLISHABLE_KEY'
+      - 'CLERK_SECRET_KEY=$_CLERK_SECRET_KEY'
+      - 'NEXT_PUBLIC_CLERK_SIGN_IN_URL=$_CLERK_SIGN_IN_URL'
+      - 'NEXT_PUBLIC_CLERK_SIGN_UP_URL=$_CLERK_SIGN_UP_URL'
+      - 'DATABASE_URL=$_DATABASE_URL'
+      - 'BILLING_PLAN_ENV=$_BILLING_PLAN_ENV'
+      - 'NEXT_PUBLIC_APP_NAME=DLV Insight'
+      - 'NEXT_PUBLIC_APP_DESCRIPTION=Amazon Seller Profit Analytics Platform'
+      - 'NEXT_TELEMETRY_DISABLED=1'
+
+  # Deploy to Cloud Run using gcloud buildpacks
+  - name: 'gcr.io/k8s-skaffold/pack'
+    args:
+      - build
+      - '$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - '--path=src'
+      - '--builder=gcr.io/buildpacks/builder:v1'
+      - '--env=NODE_ENV=production'
+      - '--env=NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$_CLERK_PUBLISHABLE_KEY'
+      - '--env=CLERK_SECRET_KEY=$_CLERK_SECRET_KEY'
+      - '--env=NEXT_PUBLIC_CLERK_SIGN_IN_URL=$_CLERK_SIGN_IN_URL'
+      - '--env=NEXT_PUBLIC_CLERK_SIGN_UP_URL=$_CLERK_SIGN_UP_URL'
+      - '--env=DATABASE_URL=$_DATABASE_URL'
+      - '--env=BILLING_PLAN_ENV=$_BILLING_PLAN_ENV'
+      - '--env=NEXT_PUBLIC_APP_NAME=DLV Insight'
+      - '--env=NEXT_PUBLIC_APP_DESCRIPTION=Amazon Seller Profit Analytics Platform'
+
+  # Push the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - '$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - run
+      - deploy
+      - $_SERVICE_NAME
+      - '--image=$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - '--region=$_DEPLOY_REGION'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars=NODE_ENV=production'
+      - '--set-env-vars=NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$_CLERK_PUBLISHABLE_KEY'
+      - '--set-env-vars=CLERK_SECRET_KEY=$_CLERK_SECRET_KEY'
+      - '--set-env-vars=NEXT_PUBLIC_CLERK_SIGN_IN_URL=$_CLERK_SIGN_IN_URL'
+      - '--set-env-vars=NEXT_PUBLIC_CLERK_SIGN_UP_URL=$_CLERK_SIGN_UP_URL'
+      - '--set-env-vars=DATABASE_URL=$_DATABASE_URL'
+      - '--set-env-vars=BILLING_PLAN_ENV=$_BILLING_PLAN_ENV'
+      - '--set-env-vars=NEXT_PUBLIC_APP_NAME=DLV Insight'
+      - '--set-env-vars=NEXT_PUBLIC_APP_DESCRIPTION=Amazon Seller Profit Analytics Platform'
+
+images:
+  - '$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
