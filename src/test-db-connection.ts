@@ -1,13 +1,9 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as schema from './src/models/Schema';
 
 async function testConnection() {
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL || 'postgresql://admin@localhost:5432/dlvinsight_dev',
   });
-
-  const db = drizzle(pool, { schema });
 
   try {
     // Test query - count tables
