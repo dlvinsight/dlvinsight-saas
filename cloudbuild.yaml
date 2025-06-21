@@ -1,12 +1,19 @@
 steps:
-  # Build the container image using buildpacks
-  - name: 'gcr.io/k8s-skaffold/pack'
+  # Build the container image using Docker
+  - name: 'gcr.io/cloud-builders/docker'
     args:
       - build
+      - '-t'
       - '$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
-      - '--builder=gcr.io/buildpacks/builder:v1'
-      - '--path=src'
-      - '--cache-image=$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME/cache'
+      - '-f'
+      - 'src/Dockerfile'
+      - 'src'
+
+  # Push the container image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - '$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -18,6 +25,8 @@ steps:
       - '--region=$_DEPLOY_REGION'
       - '--platform=managed'
       - '--allow-unauthenticated'
+      - '--port=3000'
+      - '--set-env-vars=NODE_ENV=production'
 
 images:
   - '$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
