@@ -41,12 +41,14 @@
     "button_text": "Démarrer"
   },
   "PricingPlan": {
-    "free_plan_name": "Gratuit",
-    "premium_plan_name": "Premium",
+    "free_plan_name": "Starter",
+    "basic_plan_name": "Starter",
+    "premium_plan_name": "Professional",
     "enterprise_plan_name": "Enterprise",
-    "free_plan_description": "Pour les particuliers",
-    "premium_plan_description": "Pour les petites équipes",
-    "enterprise_plan_description": "Pour les leaders de l'industrie",
+    "free_plan_description": "Parfait pour les nouveaux vendeurs",
+    "basic_plan_description": "Parfait pour les nouveaux vendeurs",
+    "premium_plan_description": "Pour les entreprises en croissance",
+    "enterprise_plan_description": "Pour les vendeurs établis",
     "feature_team_member": "{number} membres",
     "feature_website": "{number} sites internet",
     "feature_storage": "{number} Go de stockage",
@@ -57,8 +59,18 @@
     "next_renew_date": "Votre abonnement sera renouvelé le {date}"
   },
   "FAQ": {
-    "question": "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
-    "answer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam enim dui, id consequat turpis ullamcorper ac. Mauris id quam dolor. Nullam eu egestas turpis. Proin risus elit, sollicitudin in mi a, accumsan euismod turpis. In euismod mi sed diam tristique hendrerit."
+    "question1": "En quoi cela diffère-t-il des autres outils d'analyse Amazon ?",
+    "answer1": "DLV Insight est la seule plateforme offrant une analyse P&L Plan vs. Réel et une analyse de cohorte LTV. Alors que d'autres outils se concentrent sur les rapports historiques, nous permettons la planification stratégique et les prévisions.",
+    "question2": "Qu'est-ce que l'analyse Plan vs. Réel ?",
+    "answer2": "L'analyse Plan vs. Réel vous permet de créer des prévisions P&L et de les comparer aux résultats réels. Cela aide à identifier les écarts de performance et à faire des ajustements basés sur les données pour atteindre vos objectifs.",
+    "question3": "Quelle est la précision des prévisions ?",
+    "answer3": "Notre moteur de prévision alimenté par l'IA atteint généralement une précision de 90%+ en analysant les données historiques, les tendances du marché et les modèles de saisonnalité spécifiques à la vente sur Amazon.",
+    "question4": "Dois-je connecter mon compte Amazon ?",
+    "answer4": "Oui, une connexion sécurisée à votre compte Amazon Seller Central est requise. Nous utilisons l'intégration officielle Amazon SP-API avec un cryptage de niveau bancaire.",
+    "question5": "Puis-je exporter mes données ?",
+    "answer5": "Oui, tous les plans incluent des capacités d'exportation de données. Vous pouvez télécharger des rapports aux formats CSV, Excel ou PDF pour une analyse plus approfondie ou à des fins comptables.",
+    "question6": "Quel support proposez-vous ?",
+    "answer6": "Tous les plans incluent le support par e-mail. Les plans Professional et Enterprise bénéficient d'un support prioritaire, et les clients Enterprise reçoivent un gestionnaire de compte dédié."
   },
   "CTA": {
     "title": "Vous êtes prêt?",
