@@ -45,9 +45,11 @@ Multi-tenant Amazon analytics platform with forecasting capabilities - deployed 
 - Test mode configured
 - Keys are in `.env.local` and Cloud Run environment variables
 
-**Cloud Run Services:**
-- `dlvinsight-app` (europe-west1) - Production with custom domain
-- `dlv-saas-d` (europe-central2) - Legacy, auto-builds from GitHub
+**Cloud Run Service:**
+- `dlvinsight-app` (europe-west1) - Production with custom domain app.dlvinsight.com
+- Build Method: Google Cloud Buildpacks (auto-detects Node.js)
+- Build Trigger: Automatic on push to main branch
+- Build Time: ~10 minutes
 
 **Domain Configuration:**
 - Domain: `app.dlvinsight.com`
@@ -159,10 +161,12 @@ src/
 - GitHub repo: `https://github.com/dlvinsight/dlvinsight-saas`
 - Build trigger: Pushes to `main` branch
 - Build process: Google Cloud Buildpacks (Node.js auto-detected)
-- Build location: europe-central2
-- Deployment: Auto-deploys to Cloud Run
+- Build location: Global (multi-region)
+- Deployment: Auto-deploys to Cloud Run in europe-west1
 - Build time: ~10 minutes
-- Image registry: `europe-central2-docker.pkg.dev/dlvinsight-profit-analytics/cloud-run-source-deploy/`
+- Image registry: `europe-west1-docker.pkg.dev/dlvinsight-profit-analytics/cloud-run-source-deploy/`
+- Trigger ID: `8b6ba718-d811-48a6-9cc3-b388fa8c5e4d`
+- Service Account: `1017650028198-compute@developer.gserviceaccount.com`
 
 **Important Build Notes:**
 - Source code is in `/src` directory (not root)
@@ -283,9 +287,8 @@ gcloud run deploy dlvinsight-app \
   --add-cloudsql-instances=dlvinsight-profit-analytics:europe-central2:dlvinsight-db
 ```
 
-**Services:**
-- Production (europe-west1): `dlvinsight-app` - https://app.dlvinsight.com
-- Build Service (europe-central2): `dlv-saas-d` - Auto-builds from GitHub
+**Service:**
+- Production: `dlvinsight-app` (europe-west1) - https://app.dlvinsight.com
 
 **⚠️ Important Notes:**
 - Domain mappings not supported in europe-central2 - that's why we use europe-west1
