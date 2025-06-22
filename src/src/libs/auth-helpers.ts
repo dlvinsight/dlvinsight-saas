@@ -16,7 +16,7 @@ export interface AuthOrganization {
   id: string;
   clerkOrgId: string;
   name: string | null;
-  role?: string;
+  role?: string | null;
 }
 
 /**

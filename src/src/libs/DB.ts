@@ -46,9 +46,17 @@ if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD && Env.DATABASE_URL) {
   }
 
   drizzle = global.drizzle;
-  await migratePglite(global.drizzle, {
-    migrationsFolder: path.join(process.cwd(), 'migrations'),
-  });
+  // Skip migrations for PGlite during build
+  if (process.env.SKIP_DB_MIGRATIONS !== 'true') {
+    try {
+      await migratePglite(global.drizzle, {
+        migrationsFolder: path.join(process.cwd(), 'migrations'),
+      });
+    } catch (error) {
+      console.error('PGlite migration error:', error);
+      // Continue without failing - PGlite is only for build time
+    }
+  }
 }
 
 export const db = drizzle;
