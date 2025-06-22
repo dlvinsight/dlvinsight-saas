@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Client } from 'pg';
 
@@ -17,13 +17,13 @@ const DATABASE_URL = Env.DATABASE_URL || (
     : 'postgresql://postgres:yvYWVYXsrUTZyuKZn21khcKYG+8tkA18+mGCkFYuL2I=@35.241.144.115:5432/dlvinsight_prod?sslmode=disable'
 );
 
-let db;
+let db: NodePgDatabase<typeof schema>;
 
 // During build phase, create a placeholder DB instance
 if (process.env.NEXT_PHASE === 'phase-production-build') {
   console.log('Build phase detected - using placeholder database connection');
   // Create a minimal db object that won't fail during build
-  db = new Proxy({}, {
+  db = new Proxy({} as NodePgDatabase<typeof schema>, {
     get() {
       return () => {
         throw new Error('Database operations not available during build');
