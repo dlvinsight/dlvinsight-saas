@@ -117,29 +117,48 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
   const handleSaveManualCredentials = async () => {
     if (!selectedMarketplace) return;
 
-    const newAccount = {
-      id: `acc_${Date.now()}`,
-      name: accountName || `${selectedMarketplace.name} Account`,
-      marketplace: selectedMarketplace.name,
-      marketplaceCode: selectedMarketplace.code,
-      marketplaceId: selectedMarketplace.id,
-      apiType: 'sp-api' as const,
-      status: 'active' as const,
-      lastSync: null,
-      credentials: {
-        awsEnvironment,
-        accountType,
-        lwaClientId,
-        lwaClientSecret,
-        refreshToken,
-        endpoint: selectedMarketplace.endpoint,
-      }
-    };
+    try {
+      const accountData = {
+        name: accountName || `${selectedMarketplace.name} Account`,
+        marketplace: selectedMarketplace.name,
+        marketplaceCode: selectedMarketplace.code,
+        marketplaceId: selectedMarketplace.id,
+        apiType: 'sp-api' as const,
+        status: 'active' as const,
+        currency: selectedMarketplace.currency,
+        currencySymbol: selectedMarketplace.currencySymbol,
+        credentials: {
+          awsEnvironment,
+          accountType,
+          lwaClientId,
+          lwaClientSecret,
+          refreshToken,
+          endpoint: selectedMarketplace.endpoint,
+        }
+      };
 
-    // TODO: Save to database via API
-    onAccountAdded(newAccount);
-    onOpenChange(false);
-    resetForm();
+      const response = await fetch('/api/seller-accounts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(accountData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to save account');
+      }
+
+      const savedAccount = await response.json();
+      onAccountAdded(savedAccount);
+      onOpenChange(false);
+      resetForm();
+    } catch (error) {
+      console.error('Error saving account:', error);
+      // TODO: Show error message to user
+      alert(error instanceof Error ? error.message : 'Failed to save account. Please try again.');
+    }
   };
 
   const resetForm = () => {

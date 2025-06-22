@@ -19,39 +19,41 @@ const isProtectedRoute = createRouteMatcher([
   '/:locale/dashboard(.*)',
   '/onboarding(.*)',
   '/:locale/onboarding(.*)',
-  '/api(.*)',
-  '/:locale/api(.*)',
 ]);
 
 export default function middleware(
   request: NextRequest,
   event: NextFetchEvent,
 ) {
-  // Skip auth for webhook endpoints
-  if (request.nextUrl.pathname.includes('/api/webhooks/')) {
+  const pathname = request.nextUrl.pathname;
+  
+  // Check if it's a webhook endpoint - handle these first without any auth
+  if (pathname.startsWith('/api/webhooks/') || pathname.includes('/api/webhooks/')) {
+    // For webhooks, only apply intl middleware, skip Clerk auth entirely
     return intlMiddleware(request);
   }
 
-  if (
-    request.nextUrl.pathname.includes('/sign-in')
-    || request.nextUrl.pathname.includes('/sign-up')
-    || isProtectedRoute(request)
-  ) {
+  // Check if it's a sign-in/sign-up page or a protected route
+  const isSignInOrUp = pathname.includes('/sign-in') || pathname.includes('/sign-up');
+  const isProtected = isProtectedRoute(request);
+  const isApiRoute = pathname.startsWith('/api/') || pathname.includes('/api/');
+  
+  // Apply Clerk middleware for sign-in/up pages, protected routes, and non-webhook API routes
+  if (isSignInOrUp || isProtected || isApiRoute) {
     return clerkMiddleware(async (auth, req) => {
-      if (isProtectedRoute(req)) {
-        const locale
-          = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
-
+      // Only protect if it's a protected route or a non-webhook API route
+      if (isProtected || isApiRoute) {
+        const locale = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
         const signInUrl = new URL(`${locale}/sign-in`, req.url);
 
         await auth.protect({
-          // `unauthenticatedUrl` is needed to avoid error: "Unable to find `next-intl` locale because the middleware didn't run on this request"
           unauthenticatedUrl: signInUrl.toString(),
         });
       }
 
       const authObj = await auth();
 
+      // Handle organization selection redirect
       if (
         authObj.userId
         && !authObj.orgId
@@ -70,9 +72,20 @@ export default function middleware(
     })(request, event);
   }
 
+  // For all other routes, just apply intl middleware
   return intlMiddleware(request);
 }
 
 export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next|monitoring).*)', '/', '/(api|trpc)(.*)'], // Also exclude tunnelRoute used in Sentry from the matcher
+  matcher: [
+    // Match all paths except:
+    // - Static files (containing a dot)
+    // - _next paths
+    // - monitoring (Sentry tunnel)
+    // - api/webhooks paths
+    '/((?!.+\\.[\\w]+$|_next|monitoring|api/webhooks).*)', 
+    '/', 
+    // Match API routes but exclude webhooks
+    '/(api/(?!webhooks)|trpc)(.*)'
+  ],
 };
