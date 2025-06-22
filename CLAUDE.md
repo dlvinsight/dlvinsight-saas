@@ -35,11 +35,12 @@ Multi-tenant Amazon analytics platform with forecasting capabilities - deployed 
 - Keys are in `.env.local` and Cloud Run environment variables
 
 **Database (Cloud SQL):**
-- Instance: `dlvinsight-db` (PostgreSQL 17)
-- Connection: `dlvinsight-profit-analytics:europe-central2:dlvinsight-db`
+- Instance: `dlvinsight-db-west1` (PostgreSQL 17)
+- Connection: `dlvinsight-profit-analytics:europe-west1:dlvinsight-db-west1`
 - Database: `dlvinsight_prod`
 - Password: Stored in `/tmp/db_password.txt` (local only, not in git)
-- Cloud Run URL: `postgresql://postgres:PASSWORD@/dlvinsight_prod?host=/cloudsql/dlvinsight-profit-analytics:europe-central2:dlvinsight-db`
+- Public IP: `35.241.144.115`
+- Cloud Run URL: `postgresql://postgres:PASSWORD@/dlvinsight_prod?host=/cloudsql/dlvinsight-profit-analytics:europe-west1:dlvinsight-db-west1`
 
 **Payments (Stripe):**
 - Test mode configured
@@ -138,14 +139,14 @@ src/
 - Environment: `.env.local`
 
 *Production (Google Cloud SQL):*
-- Instance: `dlvinsight-db` (PostgreSQL 17)
+- Instance: `dlvinsight-db-west1` (PostgreSQL 17)
 - Project: `dlvinsight-profit-analytics`
-- Region: `europe-central2-b`
+- Region: `europe-west1`
 - Database: `dlvinsight_prod`
-- Public IP: `34.116.202.95`
+- Public IP: `35.241.144.115`
 - Password stored in: `/tmp/db_password.txt` (local development only)
-- Cloud Build DATABASE_URL: `postgresql://postgres:PASSWORD@/dlvinsight_prod?host=/cloudsql/dlvinsight-profit-analytics:europe-central2:dlvinsight-db`
-- Direct connection: `postgresql://postgres:PASSWORD@34.116.202.95:5432/dlvinsight_prod?sslmode=disable`
+- Cloud Build DATABASE_URL: `postgresql://postgres:PASSWORD@/dlvinsight_prod?host=/cloudsql/dlvinsight-profit-analytics:europe-west1:dlvinsight-db-west1`
+- Direct connection: `postgresql://postgres:PASSWORD@35.241.144.115:5432/dlvinsight_prod?sslmode=disable`
 
 *Tables Created:*
 - `organization` - Multi-tenant organization management
@@ -305,25 +306,122 @@ gcloud run deploy dlvinsight-app \
 --DS -> don't stop till totally finished
 
 
+## Product Features & Positioning
+
+### Core Differentiators (Based on Competitor Analysis)
+
+**Primary Unique Features:**
+1. **Plan vs. Fact P&L Analysis** - Forecast profits and compare to actual results (unique in market)
+2. **LTV Cohort Analytics** - Customer lifetime value tracking by cohorts (MVP feature)
+3. **Strategic Planning Focus** - Proactive planning vs. reactive reporting
+4. **AI-Powered Forecasting** - Predictive analytics for business planning
+
+**Value Proposition:**
+"Plan, Forecast, and Measure Your Amazon Success - The only platform that compares your plans to reality"
+
+### Feature Roadmap
+
+**MVP Features (Phase 1):**
+- [ ] Plan vs. Fact P&L dashboard
+- [ ] LTV cohort analytics
+- [ ] Basic forecasting engine
+- [ ] Amazon data integration via Airbyte
+- [ ] Multi-tenant organization management
+
+**Core Features (Phase 2):**
+- [ ] Advanced forecasting algorithms
+- [ ] Strategic planning tools
+- [ ] Performance gap analysis
+- [ ] Automated reporting
+- [ ] Multi-marketplace support
+
+**Advanced Features (Phase 3):**
+- [ ] AI-powered recommendations
+- [ ] Custom report builder
+- [ ] API access for integrations
+- [ ] Advanced business intelligence
+- [ ] White-label options
+
+### Competitive Positioning
+
+**vs. Sellerise ($19.99/month):**
+- Strategic planning vs. basic tools
+- Forecasting vs. reactive reporting
+- Advanced analytics vs. simple dashboard
+
+**vs. Sellerboard ($15-79/month):**
+- Plan/Fact analysis vs. profit tracking only
+- LTV cohorts vs. basic customer data
+- Strategic focus vs. operational focus
+
+**vs. Helium 10 ($39-229/month):**
+- Planning/forecasting vs. product research
+- Strategic analytics vs. operational tools
+- Business intelligence vs. basic metrics
+
+### Pricing Strategy
+
+**Starter - $29/month:**
+- 1 Amazon account
+- Basic Plan vs. Fact analysis
+- LTV cohort tracking
+- Standard forecasting
+- Email support
+
+**Professional - $79/month:**
+- 3 Amazon accounts
+- Advanced P&L analysis
+- Multi-marketplace support
+- AI-powered forecasting
+- Priority support
+
+**Enterprise - $199/month:**
+- Unlimited accounts
+- Custom reporting
+- Advanced analytics
+- Dedicated account manager
+- API access
+
 ## Documentation & Planning
 
 **MVP Planning:**
 - [MVP-QUICKSTART.md](./MVP-QUICKSTART.md) - Rapid MVP deployment using Supabase + Airbyte
 - [AIRBYTE-AMAZON-SETUP.md](./AIRBYTE-AMAZON-SETUP.md) - Airbyte configuration for Amazon SP-API
 - [COMPREHENSIVE-PROJECT-DOCUMENTATION.md](./COMPREHENSIVE-PROJECT-DOCUMENTATION.md) - Full project documentation
+- [COMPETITOR-ANALYSIS.md](./COMPETITOR-ANALYSIS.md) - Analysis of Sellerise, Sellerboard, Helium 10
+- [LANDING-PAGE-UPDATE-PLAN.md](./LANDING-PAGE-UPDATE-PLAN.md) - Complete landing page redesign plan
+- [SAAS-BOILERPLATE-SETUP-PLAN.md](./SAAS-BOILERPLATE-SETUP-PLAN.md) - SaaS foundation setup guide
 
-**Architecture Planning (To be created):**
+**Architecture Planning:**
 - Technology stack evaluation document
 - Open-source SaaS solution comparison
 - Airbyte integration architecture
 - MVP feature prioritization
 
-## Planning Phase TODO
+## Current Development Status
 
-- [ ] Evaluate open-source SaaS boilerplates
-- [ ] Test Airbyte Amazon SP-API connector
-- [ ] Define MVP feature set
-- [ ] Create technology decision document
-- [ ] Design multi-tenant data architecture
-- [ ] Plan authentication strategy
-- [ ] Estimate development timeline
+**✅ Completed:**
+- SaaS boilerplate foundation established (ixartz/SaaS-Boilerplate)
+- Environment configuration completed
+- Database schema designed for Amazon analytics
+- Development workflow configured
+- Production database setup completed (Cloud SQL)
+- Database migrations applied to production
+- Cloud Build configuration ready
+- Cloud Run deployment working (europe-west1)
+- Custom domain configured (app.dlvinsight.com)
+- Authentication working with Clerk
+- Stripe integration configured
+- Competitor analysis completed
+- Landing page strategy defined
+
+**🚧 In Progress:**
+- Landing page implementation
+- MVP feature development planning
+
+**⏳ Pending:**
+- Airbyte integration setup
+- Amazon SP-API connector configuration
+- UI components for analytics dashboard
+- Plan vs. Fact P&L implementation
+- LTV cohort analytics implementation

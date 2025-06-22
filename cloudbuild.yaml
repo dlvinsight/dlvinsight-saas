@@ -1,63 +1,55 @@
 steps:
-  # Debug substitution variables
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
+  # Build the container image using buildpacks
+  - name: 'gcr.io/k8s-skaffold/pack'
+    id: 'Buildpack'
+    entrypoint: 'pack'
     args:
-      - '-c'
-      - |
-        echo "=== Debug Substitution Variables ==="
-        echo "CLERK_PUBLISHABLE_KEY: $_CLERK_PUBLISHABLE_KEY"
-        echo "CLERK_SECRET_KEY: $_CLERK_SECRET_KEY"
-        echo "CLERK_SIGN_IN_URL: $_CLERK_SIGN_IN_URL"
-        echo "CLERK_SIGN_UP_URL: $_CLERK_SIGN_UP_URL"
-        echo "DATABASE_URL: $_DATABASE_URL"
-        echo "BILLING_PLAN_ENV: $_BILLING_PLAN_ENV"
-        echo "=================================="
-
-  # Build the container image using Docker
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - build
-      - '-t'
-      - '$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
-      - '-f'
-      - 'src/Dockerfile'
-      - '--build-arg'
-      - 'NODE_ENV=production'
-      - '--build-arg'
-      - 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$_CLERK_PUBLISHABLE_KEY'
-      - '--build-arg'
-      - 'CLERK_SECRET_KEY=$_CLERK_SECRET_KEY'
-      - '--build-arg'
-      - 'NEXT_PUBLIC_CLERK_SIGN_IN_URL=$_CLERK_SIGN_IN_URL'
-      - '--build-arg'
-      - 'NEXT_PUBLIC_CLERK_SIGN_UP_URL=$_CLERK_SIGN_UP_URL'
-      - '--build-arg'
-      - 'DATABASE_URL=$_DATABASE_URL'
-      - '--build-arg'
-      - 'BILLING_PLAN_ENV=$_BILLING_PLAN_ENV'
-      - '--build-arg'
-      - 'NEXT_PUBLIC_APP_NAME=DLV Insight'
-      - '--build-arg'
-      - 'NEXT_PUBLIC_APP_DESCRIPTION=Amazon Seller Profit Analytics Platform'
-      - 'src'
+      - 'build'
+      - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - '--builder=gcr.io/buildpacks/builder:latest'
+      - '--network=cloudbuild'
+      - '--path=src'
 
   # Push the container image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push'
     args:
-      - push
-      - '$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - 'push'
+      - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
 
   # Deploy container image to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    id: 'Deploy'
+    entrypoint: 'gcloud'
     args:
-      - run
-      - deploy
-      - $_SERVICE_NAME
-      - '--image=$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
-      - '--region=$_DEPLOY_REGION'
+      - 'run'
+      - 'services'
+      - 'update'
+      - '$_SERVICE_NAME'
       - '--platform=managed'
-      - '--allow-unauthenticated'
+      - '--image=$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - '--labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID'
+      - '--region=$_DEPLOY_REGION'
+      - '--add-cloudsql-instances=dlvinsight-profit-analytics:europe-west1:dlvinsight-db-west1'
+      - '--quiet'
 
 images:
-  - '$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+  - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  substitutionOption: ALLOW_LOOSE
+
+substitutions:
+  _AR_HOSTNAME: 'europe-west1-docker.pkg.dev'
+  _AR_PROJECT_ID: 'dlvinsight-profit-analytics'
+  _AR_REPOSITORY: 'cloud-run-source-deploy'
+  _SERVICE_NAME: 'dlvinsight-app'
+  _DEPLOY_REGION: 'europe-west1'
+  _PLATFORM: 'managed'
+  _TRIGGER_ID: '${_TRIGGER_ID}'
+
+tags:
+  - 'gcp-cloud-build-deploy-cloud-run'
+  - 'gcp-cloud-build-deploy-cloud-run-managed'
+  - 'dlvinsight-app'
