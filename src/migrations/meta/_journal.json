@@ -15,6 +15,34 @@
       "when": 1750522150991,
       "tag": "0001_brainy_fenris",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1750614501895,
+      "tag": "0002_shiny_gorilla_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1750614835545,
+      "tag": "0003_thankful_the_professor",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1750615147690,
+      "tag": "0004_freezing_echo",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1750615437502,
+      "tag": "0005_lumpy_miracleman",
+      "breakpoints": true
     }
   ]
 }

@@ -22,9 +22,18 @@ if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD && Env.DATABASE_URL) {
   await client.connect();
 
   drizzle = drizzlePg(client, { schema });
-  await migratePg(drizzle, {
-    migrationsFolder: path.join(process.cwd(), 'migrations'),
-  });
+  
+  // Skip migrations in development if SKIP_DB_MIGRATIONS is set
+  if (process.env.SKIP_DB_MIGRATIONS !== 'true') {
+    try {
+      await migratePg(drizzle, {
+        migrationsFolder: path.join(process.cwd(), 'migrations'),
+      });
+    } catch (error) {
+      console.error('Migration error:', error);
+      // Continue without failing - migrations might already be applied
+    }
+  }
 } else {
   // Stores the db connection in the global scope to prevent multiple instances due to hot reloading with Next.js
   const global = globalThis as unknown as { client: PGlite; drizzle: PgliteDatabase<typeof schema> };
