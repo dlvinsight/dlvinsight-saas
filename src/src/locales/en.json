@@ -100,6 +100,7 @@
   },
   "DashboardLayout": {
     "home": "Home",
+    "sources": "Sources",
     "todos": "Todos",
     "members": "Members",
     "billing": "Billing",
@@ -174,5 +175,46 @@
     "message_title": "Message",
     "message_description": "Enter a detailed message for your todo.",
     "submit_button": "Submit"
+  },
+  "Sources": {
+    "meta_title": "Data Sources",
+    "page_title": "Data Sources",
+    "page_description": "Manage your Amazon marketplace accounts and data connections",
+    "accounts_title": "Connected Accounts",
+    "add_account": "Add Account",
+    "no_accounts": "No accounts connected yet",
+    "add_first_account": "Add Your First Account",
+    "never_synced": "Never synced",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "error": "Error"
+    },
+    "table": {
+      "account_name": "Account Name",
+      "marketplace": "Marketplace",
+      "api_type": "API Type",
+      "status": "Status",
+      "last_sync": "Last Sync",
+      "actions": "Actions"
+    },
+    "AddAccount": {
+      "title": "Add Amazon Account",
+      "choose_marketplace": "Choose your main marketplace",
+      "choose_currency": "Choose your main currency",
+      "next": "Next",
+      "back": "Back",
+      "connect_seller_central": "Connect to Seller Central",
+      "or": "or",
+      "manual_setup": "Manual Source Settings",
+      "account_name": "Source name",
+      "aws_environment": "AWS Environment",
+      "aws_region": "AWS Region",
+      "account_type": "AWS Seller Partner Account Type",
+      "lwa_client_id": "LWA Client Id",
+      "lwa_client_secret": "LWA Client Secret",
+      "refresh_token": "Refresh Token",
+      "save_credentials": "Save Credentials"
+    }
   }
 }
