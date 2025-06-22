@@ -1,19 +1,17 @@
 import { getTranslations, unstable_setRequestLocale } from 'next-intl/server';
 
+import { CompetitorComparison } from '@/features/landing/CompetitorComparison';
+import { ForecastingSection } from '@/features/landing/ForecastingSection';
+import { LTVCohortSection } from '@/features/landing/LTVCohortSection';
+import { PlanVsFactSection } from '@/features/landing/PlanVsFactSection';
+import { StrategicDashboardSection } from '@/features/landing/StrategicDashboardSection';
+import { UseCasesSection } from '@/features/landing/UseCasesSection';
 import { CTA } from '@/templates/CTA';
-import { DemoBanner } from '@/templates/DemoBanner';
 import { FAQ } from '@/templates/FAQ';
 import { Footer } from '@/templates/Footer';
 import { Hero } from '@/templates/Hero';
 import { Navbar } from '@/templates/Navbar';
 import { Pricing } from '@/templates/Pricing';
-import { Sponsors } from '@/templates/Sponsors';
-import { PlanVsFactSection } from '@/features/landing/PlanVsFactSection';
-import { LTVCohortSection } from '@/features/landing/LTVCohortSection';
-import { ForecastingSection } from '@/features/landing/ForecastingSection';
-import { StrategicDashboardSection } from '@/features/landing/StrategicDashboardSection';
-import { CompetitorComparison } from '@/features/landing/CompetitorComparison';
-import { UseCasesSection } from '@/features/landing/UseCasesSection';
 
 export async function generateMetadata(props: { params: { locale: string } }) {
   const t = await getTranslations({
@@ -32,10 +30,8 @@ const IndexPage = (props: { params: { locale: string } }) => {
 
   return (
     <>
-      <DemoBanner />
       <Navbar />
       <Hero />
-      <Sponsors />
       <PlanVsFactSection />
       <LTVCohortSection />
       <ForecastingSection />
