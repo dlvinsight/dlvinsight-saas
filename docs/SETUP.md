@@ -4,7 +4,6 @@
 
 **URLs:**
 - Main App: https://app.dlvinsight.com (europe-west1)
-- Legacy: https://dlv-saas-d-1017650028198.europe-central2.run.app
 
 **Google Cloud Project:** `dlvinsight-profit-analytics`
 
@@ -98,7 +97,7 @@ IMAGE=$(gcloud run services describe dlv-saas-d --region=europe-central2 --forma
 gcloud run deploy dlvinsight-app \
   --image=$IMAGE \
   --region=europe-west1 \
-  --add-cloudsql-instances=dlvinsight-profit-analytics:europe-central2:dlvinsight-db
+  --add-cloudsql-instances=dlvinsight-profit-analytics:europe-west1:dlvinsight-db-west1
 ```
 
 ## Important Notes
@@ -110,8 +109,8 @@ gcloud run deploy dlvinsight-app \
 ### Production Database Access
 ```bash
 # Using password file
-PGPASSWORD="$(cat /tmp/db_password.txt)" /usr/local/opt/postgresql@15/bin/psql -h 34.116.202.95 -U postgres -d dlvinsight_prod
+PGPASSWORD="$(cat /tmp/db_password.txt)" /usr/local/opt/postgresql@15/bin/psql -h 35.241.144.115 -U postgres -d dlvinsight_prod
 
 # Using gcloud
-gcloud sql connect dlvinsight-db --user=postgres --database=dlvinsight_prod
+gcloud sql connect dlvinsight-db-west1 --user=postgres --database=dlvinsight_prod
 ```
