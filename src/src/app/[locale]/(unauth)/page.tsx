@@ -9,6 +9,12 @@ import { Hero } from '@/templates/Hero';
 import { Navbar } from '@/templates/Navbar';
 import { Pricing } from '@/templates/Pricing';
 import { Sponsors } from '@/templates/Sponsors';
+import { PlanVsFactSection } from '@/features/landing/PlanVsFactSection';
+import { LTVCohortSection } from '@/features/landing/LTVCohortSection';
+import { ForecastingSection } from '@/features/landing/ForecastingSection';
+import { StrategicDashboardSection } from '@/features/landing/StrategicDashboardSection';
+import { CompetitorComparison } from '@/features/landing/CompetitorComparison';
+import { UseCasesSection } from '@/features/landing/UseCasesSection';
 
 export async function generateMetadata(props: { params: { locale: string } }) {
   const t = await getTranslations({
@@ -31,7 +37,12 @@ const IndexPage = (props: { params: { locale: string } }) => {
       <Navbar />
       <Hero />
       <Sponsors />
-      <Features />
+      <PlanVsFactSection />
+      <LTVCohortSection />
+      <ForecastingSection />
+      <StrategicDashboardSection />
+      <CompetitorComparison />
+      <UseCasesSection />
       <Pricing />
       <FAQ />
       <CTA />
