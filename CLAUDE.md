@@ -197,6 +197,32 @@ test('user flow description', async ({ page }) => {
 3. Application processes and displays analytics
 4. Real-time profit calculations from synchronized data
 
+## Cloud Run Production Commands
+
+**Check Domain Mapping Status:**
+```bash
+gcloud beta run domain-mappings describe --domain=app.dlvinsight.com --region=europe-west1
+```
+
+**View Service Details:**
+```bash
+gcloud run services describe dlvinsight-app --region=europe-west1
+```
+
+**Update Environment Variables:**
+```bash
+gcloud run services update dlvinsight-app --region=europe-west1 --update-env-vars="KEY=value"
+```
+
+**View Logs:**
+```bash
+gcloud run services logs read dlvinsight-app --region=europe-west1 --limit=50
+```
+
+**Services:**
+- Production (europe-west1): `dlvinsight-app` - https://app.dlvinsight.com
+- Legacy (europe-central2): `dlv-saas-d` - https://dlv-saas-d-1017650028198.europe-central2.run.app
+
 ## Custom Shortcuts
 
 --GCP -> git commit push
