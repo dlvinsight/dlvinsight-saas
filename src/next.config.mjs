@@ -18,9 +18,6 @@ let nextConfig = withNextIntlConfig({
   poweredByHeader: false,
   reactStrictMode: true,
   output: 'standalone',
-  experimental: {
-    serverComponentsExternalPackages: ['@electric-sql/pglite'],
-  },
 });
 
 // Only apply bundle analyzer in development when explicitly enabled

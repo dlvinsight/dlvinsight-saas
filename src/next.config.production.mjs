@@ -18,9 +18,6 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   output: 'standalone',
-  experimental: {
-    serverComponentsExternalPackages: ['@electric-sql/pglite'],
-  },
 };
 
 export default withSentryConfig(

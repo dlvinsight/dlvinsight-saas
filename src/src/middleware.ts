@@ -27,6 +27,11 @@ export default function middleware(
   request: NextRequest,
   event: NextFetchEvent,
 ) {
+  // Skip auth for webhook endpoints
+  if (request.nextUrl.pathname.includes('/api/webhooks/')) {
+    return intlMiddleware(request);
+  }
+
   if (
     request.nextUrl.pathname.includes('/sign-in')
     || request.nextUrl.pathname.includes('/sign-up')
