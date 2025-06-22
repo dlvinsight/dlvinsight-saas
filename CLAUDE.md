@@ -19,7 +19,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project: DLV Insight Profit Analytics
 
-Multi-tenant Amazon analytics platform with forecasting capabilities - currently in planning phase.
+Multi-tenant Amazon analytics platform with forecasting capabilities - deployed to Google Cloud Run.
+
+## 🚨 CRITICAL Project-Specific Information
+
+**Production URLs:**
+- Main App: https://app.dlvinsight.com (europe-west1)
+- Legacy: https://dlv-saas-d-1017650028198.europe-central2.run.app
+
+**Google Cloud Project:** `dlvinsight-profit-analytics`
+
+**Authentication (Clerk):**
+- Instance: `advanced-alien-77` (ins_2d6vISZdkrdaKmjZZ4ixbvM776d)
+- ⚠️ NEVER use keys from "open-stinkbug-8" instance - they cause auth errors!
+- Keys are in `.env.local` and Cloud Run environment variables
+
+**Database (Cloud SQL):**
+- Instance: `dlvinsight-db` (PostgreSQL 17)
+- Connection: `dlvinsight-profit-analytics:europe-central2:dlvinsight-db`
+- Database: `dlvinsight_prod`
+- Password: Stored in `/tmp/db_password.txt` (local only, not in git)
+- Cloud Run URL: `postgresql://postgres:PASSWORD@/dlvinsight_prod?host=/cloudsql/dlvinsight-profit-analytics:europe-central2:dlvinsight-db`
+
+**Payments (Stripe):**
+- Test mode configured
+- Keys are in `.env.local` and Cloud Run environment variables
+
+**Cloud Run Services:**
+- `dlvinsight-app` (europe-west1) - Production with custom domain
+- `dlv-saas-d` (europe-central2) - Legacy, auto-builds from GitHub
+
+**Domain Configuration:**
+- Domain: `app.dlvinsight.com`
+- DNS: CNAME → `ghs.googlehosted.com.`
+- Managed by: Google Domains
 
 ## Project Approach
 
@@ -122,6 +155,21 @@ src/
 - `report_syncs` - Data synchronization tracking
 - `todo` - Application todos
 
+**CI/CD Pipeline:**
+- GitHub repo: `https://github.com/dlvinsight/dlvinsight-saas`
+- Build trigger: Pushes to `main` branch
+- Build process: Google Cloud Buildpacks (Node.js auto-detected)
+- Build location: europe-central2
+- Deployment: Auto-deploys to Cloud Run
+- Build time: ~10 minutes
+- Image registry: `europe-central2-docker.pkg.dev/dlvinsight-profit-analytics/cloud-run-source-deploy/`
+
+**Important Build Notes:**
+- Source code is in `/src` directory (not root)
+- Uses `project.toml` to configure buildpacks
+- Environment variables are set at runtime (not build time)
+- `.env` file MUST have correct Clerk keys or auth will fail
+
 **Current Project Status:**
 - ✅ SaaS boilerplate foundation established (ixartz/SaaS-Boilerplate)
 - ✅ Environment configuration completed
@@ -130,6 +178,10 @@ src/
 - ✅ Production database setup completed (Cloud SQL)
 - ✅ Database migrations applied to production
 - ✅ Cloud Build configuration ready
+- ✅ Cloud Run deployment working (europe-west1)
+- ✅ Custom domain configured (app.dlvinsight.com)
+- ✅ Authentication working with Clerk
+- ✅ Stripe integration configured
 - ⏳ Airbyte integration setup pending
 - ⏳ Amazon SP-API connector configuration pending
 - ⏳ UI components for analytics dashboard pending
@@ -219,9 +271,25 @@ gcloud run services update dlvinsight-app --region=europe-west1 --update-env-var
 gcloud run services logs read dlvinsight-app --region=europe-west1 --limit=50
 ```
 
+**Deploy New Version (europe-west1):**
+```bash
+# Get latest image from europe-central2 build
+IMAGE=$(gcloud run services describe dlv-saas-d --region=europe-central2 --format="get(spec.template.spec.containers[0].image)")
+
+# Deploy to europe-west1
+gcloud run deploy dlvinsight-app \
+  --image=$IMAGE \
+  --region=europe-west1 \
+  --add-cloudsql-instances=dlvinsight-profit-analytics:europe-central2:dlvinsight-db
+```
+
 **Services:**
 - Production (europe-west1): `dlvinsight-app` - https://app.dlvinsight.com
-- Legacy (europe-central2): `dlv-saas-d` - https://dlv-saas-d-1017650028198.europe-central2.run.app
+- Build Service (europe-central2): `dlv-saas-d` - Auto-builds from GitHub
+
+**⚠️ Important Notes:**
+- Domain mappings not supported in europe-central2 - that's why we use europe-west1
+- IAM binding for public access has been fixed - service is publicly accessible
 
 ## Custom Shortcuts
 
