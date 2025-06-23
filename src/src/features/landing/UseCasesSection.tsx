@@ -1,4 +1,4 @@
-import { RocketIcon, TrendingUpIcon, CrownIcon } from 'lucide-react';
+import { CrownIcon, RocketIcon, TrendingUpIcon } from 'lucide-react';
 
 export const UseCasesSection = () => {
   const useCases = [
@@ -53,7 +53,7 @@ export const UseCasesSection = () => {
         </div>
 
         <div className="mt-12 grid gap-8 md:grid-cols-3">
-          {useCases.map((useCase) => (
+          {useCases.map(useCase => (
             <div key={useCase.title} className="group relative">
               <div className="h-full rounded-lg border bg-background p-6 transition-shadow hover:shadow-lg">
                 <div className={`inline-flex rounded-lg p-3 ${useCase.bgColor}`}>
@@ -64,7 +64,7 @@ export const UseCasesSection = () => {
                   {useCase.subtitle}
                 </p>
                 <ul className="mt-4 space-y-3">
-                  {useCase.features.map((feature) => (
+                  {useCase.features.map(feature => (
                     <li key={feature} className="flex items-start">
                       <div className={`mr-2 mt-1.5 size-1.5 shrink-0 rounded-full ${useCase.bgColor}`} />
                       <span className="text-sm text-muted-foreground">{feature}</span>

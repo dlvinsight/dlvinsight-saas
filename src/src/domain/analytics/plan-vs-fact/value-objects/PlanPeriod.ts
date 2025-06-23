@@ -38,7 +38,7 @@ export class PlanPeriod {
     }
 
     const daysDiff = Math.ceil(
-      (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 60 * 60 * 24)
+      (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 60 * 60 * 24),
     );
 
     // Validate period type matches date range
@@ -116,22 +116,22 @@ export class PlanPeriod {
 
   getDaysInPeriod(): number {
     return Math.ceil(
-      (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 60 * 60 * 24)
+      (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 60 * 60 * 24),
     );
   }
 
   equals(other: PlanPeriod): boolean {
     return (
-      this.startDate.getTime() === other.startDate.getTime() &&
-      this.endDate.getTime() === other.endDate.getTime() &&
-      this.periodType === other.periodType
+      this.startDate.getTime() === other.startDate.getTime()
+      && this.endDate.getTime() === other.endDate.getTime()
+      && this.periodType === other.periodType
     );
   }
 
   overlaps(other: PlanPeriod): boolean {
     return (
-      this.startDate <= other.endDate &&
-      this.endDate >= other.startDate
+      this.startDate <= other.endDate
+      && this.endDate >= other.startDate
     );
   }
 }

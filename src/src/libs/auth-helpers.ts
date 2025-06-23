@@ -1,23 +1,24 @@
 import { auth } from '@clerk/nextjs/server';
-import { db } from '@/libs/DB';
-import { userSchema, organizationSchema, userOrganizationSchema } from '@/models/Schema';
-import { eq, and } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
-export interface AuthUser {
+import { db } from '@/libs/DB';
+import { organizationSchema, userOrganizationSchema, userSchema } from '@/models/Schema';
+
+export type AuthUser = {
   id: string;
   clerkUserId: string;
   email: string;
   firstName: string | null;
   lastName: string | null;
   imageUrl: string | null;
-}
+};
 
-export interface AuthOrganization {
+export type AuthOrganization = {
   id: string;
   clerkOrgId: string;
   name: string | null;
   role?: string | null;
-}
+};
 
 /**
  * Get the current authenticated user from the database
@@ -25,7 +26,7 @@ export interface AuthOrganization {
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
   const { userId } = await auth();
-  
+
   if (!userId) {
     return null;
   }
@@ -52,7 +53,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
  */
 export async function getCurrentOrganization(): Promise<AuthOrganization | null> {
   const { orgId, userId } = await auth();
-  
+
   if (!orgId || !userId) {
     return null;
   }
@@ -83,8 +84,8 @@ export async function getCurrentOrganization(): Promise<AuthOrganization | null>
       .where(
         and(
           eq(userOrganizationSchema.userId, user.id),
-          eq(userOrganizationSchema.organizationId, org.id)
-        )
+          eq(userOrganizationSchema.organizationId, org.id),
+        ),
       )
       .limit(1);
 
@@ -128,7 +129,7 @@ export async function requireAuthContext() {
  */
 export async function getUserOrganizations(): Promise<AuthOrganization[]> {
   const user = await getCurrentUser();
-  
+
   if (!user) {
     return [];
   }
@@ -143,7 +144,7 @@ export async function getUserOrganizations(): Promise<AuthOrganization[]> {
     .from(organizationSchema)
     .innerJoin(
       userOrganizationSchema,
-      eq(userOrganizationSchema.organizationId, organizationSchema.id)
+      eq(userOrganizationSchema.organizationId, organizationSchema.id),
     )
     .where(eq(userOrganizationSchema.userId, user.id));
 

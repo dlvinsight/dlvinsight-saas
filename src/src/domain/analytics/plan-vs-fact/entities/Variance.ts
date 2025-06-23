@@ -1,8 +1,8 @@
-import { MetricType } from '../value-objects/MetricType';
-import { Plan } from './Plan';
-import { ActualResult } from './ActualResult';
+import type { MetricType } from '../value-objects/MetricType';
+import type { ActualResult } from './ActualResult';
+import type { Plan } from './Plan';
 
-export interface VarianceMetric {
+export type VarianceMetric = {
   metricType: MetricType;
   plannedValue: number;
   actualValue: number;
@@ -10,9 +10,9 @@ export interface VarianceMetric {
   variancePercentage: number; // ((Actual - Planned) / Planned) * 100
   status: 'FAVORABLE' | 'UNFAVORABLE' | 'NEUTRAL';
   dataQuality: 'COMPLETE' | 'PARTIAL' | 'ESTIMATED';
-}
+};
 
-export interface VarianceProps {
+export type VarianceProps = {
   id: string;
   organizationId: string;
   sellerAccountId: string;
@@ -22,7 +22,7 @@ export interface VarianceProps {
   overallStatus: 'ON_TRACK' | 'AT_RISK' | 'OFF_TRACK';
   analysisNotes?: string;
   calculatedAt: Date;
-}
+};
 
 export class Variance {
   private constructor(private props: VarianceProps) {
@@ -47,7 +47,7 @@ export class Variance {
     // Calculate variance for each planned metric
     for (const planMetric of plan.getMetrics()) {
       const actualMetric = actualResult.getMetrics().find(
-        a => a.metricType.equals(planMetric.metricType)
+        a => a.metricType.equals(planMetric.metricType),
       );
 
       if (actualMetric) {
@@ -59,7 +59,7 @@ export class Variance {
         const status = Variance.determineStatus(
           planMetric.metricType,
           variance,
-          variancePercentage
+          variancePercentage,
         );
 
         varianceMetrics.push({
@@ -91,7 +91,7 @@ export class Variance {
   private static determineStatus(
     metricType: MetricType,
     variance: number,
-    variancePercentage: number
+    variancePercentage: number,
   ): 'FAVORABLE' | 'UNFAVORABLE' | 'NEUTRAL' {
     // Tolerance threshold (5%)
     const threshold = 5;
@@ -127,7 +127,7 @@ export class Variance {
   }
 
   private static determineOverallStatus(
-    metrics: VarianceMetric[]
+    metrics: VarianceMetric[],
   ): 'ON_TRACK' | 'AT_RISK' | 'OFF_TRACK' {
     if (metrics.length === 0) {
       return 'OFF_TRACK';
@@ -136,19 +136,19 @@ export class Variance {
     // Priority metrics for overall status
     const priorityMetrics = ['NET_PROFIT', 'NET_REVENUE', 'PROFIT_MARGIN'];
     const priorityVariances = metrics.filter(
-      m => priorityMetrics.includes(m.metricType.getKey())
+      m => priorityMetrics.includes(m.metricType.getKey()),
     );
 
     // Count unfavorable variances
     const unfavorableCount = metrics.filter(
-      m => m.status === 'UNFAVORABLE'
+      m => m.status === 'UNFAVORABLE',
     ).length;
 
     const unfavorablePercentage = (unfavorableCount / metrics.length) * 100;
 
     // Check priority metrics first
     const priorityUnfavorable = priorityVariances.filter(
-      m => m.status === 'UNFAVORABLE'
+      m => m.status === 'UNFAVORABLE',
     ).length;
 
     if (priorityUnfavorable > 0) {
@@ -228,7 +228,7 @@ export class Variance {
   // Business Methods
   getMetricVariance(metricKey: string): VarianceMetric | undefined {
     return this.props.metrics.find(
-      m => m.metricType.getKey() === metricKey
+      m => m.metricType.getKey() === metricKey,
     );
   }
 
@@ -259,8 +259,8 @@ export class Variance {
   }
 
   getRevenueVariance(): number {
-    const revenueMetric = this.getMetricVariance('NET_REVENUE') || 
-                         this.getMetricVariance('GROSS_REVENUE');
+    const revenueMetric = this.getMetricVariance('NET_REVENUE')
+      || this.getMetricVariance('GROSS_REVENUE');
     return revenueMetric?.variance || 0;
   }
 
@@ -314,8 +314,9 @@ export class Variance {
         metric: m.metricType.getName(),
         gap: m.variance,
         percentage: m.variancePercentage,
-        impact: (Math.abs(m.variancePercentage) > 20 ? 'HIGH' :
-                Math.abs(m.variancePercentage) > 10 ? 'MEDIUM' : 'LOW') as 'HIGH' | 'MEDIUM' | 'LOW',
+        impact: (Math.abs(m.variancePercentage) > 20
+          ? 'HIGH'
+          : Math.abs(m.variancePercentage) > 10 ? 'MEDIUM' : 'LOW') as 'HIGH' | 'MEDIUM' | 'LOW',
       }))
       .sort((a, b) => Math.abs(b.percentage) - Math.abs(a.percentage));
   }

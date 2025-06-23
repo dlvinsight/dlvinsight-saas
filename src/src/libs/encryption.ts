@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 // Encryption configuration
 const algorithm = 'aes-256-gcm';
@@ -25,25 +25,25 @@ export function encrypt(text: string, password: string): string {
   // Generate random salt and IV
   const salt = crypto.randomBytes(saltLength);
   const iv = crypto.randomBytes(ivLength);
-  
+
   // Derive key from password
   const key = deriveKey(password, salt);
-  
+
   // Create cipher
   const cipher = crypto.createCipheriv(algorithm, key, iv);
-  
+
   // Encrypt the text
   const encrypted = Buffer.concat([
     cipher.update(text, 'utf8'),
     cipher.final(),
   ]);
-  
+
   // Get the auth tag
   const tag = cipher.getAuthTag();
-  
+
   // Combine all parts
   const combined = Buffer.concat([salt, iv, tag, encrypted]);
-  
+
   // Return base64 encoded
   return combined.toString('base64');
 }
@@ -57,26 +57,26 @@ export function encrypt(text: string, password: string): string {
 export function decrypt(encryptedText: string, password: string): string {
   // Decode from base64
   const combined = Buffer.from(encryptedText, 'base64');
-  
+
   // Extract parts
   const salt = combined.slice(0, saltLength);
   const iv = combined.slice(saltLength, saltLength + ivLength);
   const tag = combined.slice(saltLength + ivLength, saltLength + ivLength + tagLength);
   const encrypted = combined.slice(saltLength + ivLength + tagLength);
-  
+
   // Derive key from password
   const key = deriveKey(password, salt);
-  
+
   // Create decipher
   const decipher = crypto.createDecipheriv(algorithm, key, iv);
   decipher.setAuthTag(tag);
-  
+
   // Decrypt
   const decrypted = Buffer.concat([
     decipher.update(encrypted),
     decipher.final(),
   ]);
-  
+
   return decrypted.toString('utf8');
 }
 
@@ -95,20 +95,20 @@ export function decryptObject<T = any>(encryptedText: string, password: string):
 }
 
 // Helper functions for SP-API credentials
-export interface SpApiCredentials {
+export type SpApiCredentials = {
   clientId: string;
   clientSecret: string;
   refreshToken: string;
-}
+};
 
 export function encryptSpApiCredentials(
   credentials: SpApiCredentials,
-  password: string
+  password: string,
 ): {
-  lwaClientId: string;
-  lwaClientSecret: string;
-  refreshToken: string;
-} {
+    lwaClientId: string;
+    lwaClientSecret: string;
+    refreshToken: string;
+  } {
   return {
     lwaClientId: encrypt(credentials.clientId, password),
     lwaClientSecret: encrypt(credentials.clientSecret, password),
@@ -122,7 +122,7 @@ export function decryptSpApiCredentials(
     lwaClientSecret: string;
     refreshToken: string;
   },
-  password: string
+  password: string,
 ): SpApiCredentials {
   return {
     clientId: decrypt(encrypted.lwaClientId, password),

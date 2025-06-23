@@ -2,7 +2,7 @@ import { ApiCredentials } from '../value-objects/ApiCredentials';
 import { MarketplaceId } from '../value-objects/MarketplaceId';
 import { SellerId } from '../value-objects/SellerId';
 
-export interface SellerAccountProps {
+export type SellerAccountProps = {
   id: string;
   organizationId: string;
   sellerId: SellerId;
@@ -13,7 +13,7 @@ export interface SellerAccountProps {
   lastSyncedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
 export class SellerAccount {
   private constructor(private props: SellerAccountProps) {
@@ -71,9 +71,9 @@ export class SellerAccount {
     // Ensure all marketplaces belong to the same region as API credentials
     const credentialsRegion = this.props.apiCredentials.getRegion();
     const regionMarketplaces = this.getMarketplacesByRegion(credentialsRegion);
-    
+
     const hasInvalidMarketplace = this.props.marketplaceIds.some(
-      marketplace => !regionMarketplaces.includes(marketplace.getValue())
+      marketplace => !regionMarketplaces.includes(marketplace.getValue()),
     );
 
     if (hasInvalidMarketplace) {
@@ -149,7 +149,7 @@ export class SellerAccount {
 
   addMarketplace(marketplaceId: MarketplaceId): void {
     const exists = this.props.marketplaceIds.some(
-      m => m.equals(marketplaceId)
+      m => m.equals(marketplaceId),
     );
 
     if (exists) {
@@ -159,7 +159,7 @@ export class SellerAccount {
     // Validate region
     const credentialsRegion = this.props.apiCredentials.getRegion();
     const regionMarketplaces = this.getMarketplacesByRegion(credentialsRegion);
-    
+
     if (!regionMarketplaces.includes(marketplaceId.getValue())) {
       throw new Error('Marketplace must belong to the same region as API credentials');
     }
@@ -174,7 +174,7 @@ export class SellerAccount {
     }
 
     this.props.marketplaceIds = this.props.marketplaceIds.filter(
-      m => !m.equals(marketplaceId)
+      m => !m.equals(marketplaceId),
     );
     this.props.updatedAt = new Date();
   }
@@ -197,9 +197,9 @@ export class SellerAccount {
       return true;
     }
 
-    const hoursSinceLastSync = 
-      (Date.now() - this.props.lastSyncedAt.getTime()) / (1000 * 60 * 60);
-    
+    const hoursSinceLastSync
+      = (Date.now() - this.props.lastSyncedAt.getTime()) / (1000 * 60 * 60);
+
     return hoursSinceLastSync >= thresholdHours;
   }
 }

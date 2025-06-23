@@ -64,14 +64,16 @@ export const CompetitorComparison = () => {
                       {row.feature}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      {row.otherTools ? (
-                        <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                          <CheckIcon className="size-4 text-green-600" />
-                          {row.otherTools}
-                        </div>
-                      ) : (
-                        <XIcon className="inline size-4 text-red-600" />
-                      )}
+                      {row.otherTools
+                        ? (
+                            <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                              <CheckIcon className="size-4 text-green-600" />
+                              {row.otherTools}
+                            </div>
+                          )
+                        : (
+                            <XIcon className="inline size-4 text-red-600" />
+                          )}
                     </td>
                     <td className="bg-primary/5 px-6 py-4 text-center">
                       <div className="inline-flex items-center gap-2 text-sm font-medium">

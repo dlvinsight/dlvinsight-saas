@@ -1,13 +1,13 @@
 import { DomainEvent } from '../../../shared/events/DomainEvent';
 
-export interface SyncStatistics {
+export type SyncStatistics = {
   ordersImported: number;
   productsUpdated: number;
   inventoryUpdated: number;
   financialEventsImported: number;
   duration: number; // in milliseconds
   errors: number;
-}
+};
 
 export class SyncCompletedEvent extends DomainEvent {
   constructor(

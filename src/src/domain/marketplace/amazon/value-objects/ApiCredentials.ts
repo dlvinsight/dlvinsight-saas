@@ -81,10 +81,10 @@ export class ApiCredentials {
 
   equals(other: ApiCredentials): boolean {
     return (
-      this.clientId === other.clientId &&
-      this.clientSecret === other.clientSecret &&
-      this.refreshToken === other.refreshToken &&
-      this.region === other.region
+      this.clientId === other.clientId
+      && this.clientSecret === other.clientSecret
+      && this.refreshToken === other.refreshToken
+      && this.region === other.region
     );
   }
 }

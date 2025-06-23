@@ -306,11 +306,11 @@ graph LR
 
 ### Repository Pattern
 ```typescript
-interface ISellerAccountRepository {
-  findById(id: SellerId): Promise<SellerAccount>;
-  save(account: SellerAccount): Promise<void>;
-  findByOrganization(orgId: string): Promise<SellerAccount[]>;
-}
+type ISellerAccountRepository = {
+  findById: (id: SellerId) => Promise<SellerAccount>;
+  save: (account: SellerAccount) => Promise<void>;
+  findByOrganization: (orgId: string) => Promise<SellerAccount[]>;
+};
 ```
 
 ### Use Case Pattern
@@ -331,7 +331,7 @@ class MarketplaceId {
   constructor(private readonly value: string) {
     this.validate(value);
   }
-  
+
   equals(other: MarketplaceId): boolean {
     return this.value === other.value;
   }

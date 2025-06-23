@@ -1,4 +1,4 @@
-export type MetricCategory = 
+export type MetricCategory =
   | 'REVENUE'
   | 'COST'
   | 'PROFIT'
@@ -6,14 +6,14 @@ export type MetricCategory =
   | 'ADVERTISING'
   | 'INVENTORY';
 
-export interface MetricDefinition {
+export type MetricDefinition = {
   key: string;
   name: string;
   category: MetricCategory;
   unit: 'CURRENCY' | 'PERCENTAGE' | 'COUNT';
   isCalculated: boolean;
   formula?: string;
-}
+};
 
 export class MetricType {
   private static readonly METRICS: Record<string, MetricDefinition> = {
@@ -33,7 +33,7 @@ export class MetricType {
       isCalculated: true,
       formula: 'GROSS_REVENUE - RETURNS - REFUNDS',
     },
-    
+
     // Cost Metrics
     COGS: {
       key: 'COGS',
@@ -63,7 +63,7 @@ export class MetricType {
       unit: 'CURRENCY',
       isCalculated: false,
     },
-    
+
     // Profit Metrics
     GROSS_PROFIT: {
       key: 'GROSS_PROFIT',
@@ -89,7 +89,7 @@ export class MetricType {
       isCalculated: true,
       formula: '(NET_PROFIT / NET_REVENUE) * 100',
     },
-    
+
     // Unit Metrics
     UNITS_SOLD: {
       key: 'UNITS_SOLD',
@@ -105,7 +105,7 @@ export class MetricType {
       unit: 'COUNT',
       isCalculated: false,
     },
-    
+
     // Advertising Metrics
     ACOS: {
       key: 'ACOS',
@@ -123,7 +123,7 @@ export class MetricType {
       isCalculated: true,
       formula: '(ADVERTISING_SPEND / NET_REVENUE) * 100',
     },
-    
+
     // Inventory Metrics
     INVENTORY_VALUE: {
       key: 'INVENTORY_VALUE',
@@ -171,7 +171,7 @@ export class MetricType {
       'PROFIT_MARGIN',
       'INVENTORY_VALUE',
     ];
-    
+
     return planningKeys.map(key => MetricType.fromKey(key));
   }
 

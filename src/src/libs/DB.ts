@@ -12,7 +12,7 @@ import { Env } from './Env';
 // Use direct IP connection for local development, Cloud SQL socket for Cloud Run
 const isCloudRun = process.env.K_SERVICE !== undefined;
 const DATABASE_URL = Env.DATABASE_URL || (
-  isCloudRun 
+  isCloudRun
     ? 'postgresql://postgres:yvYWVYXsrUTZyuKZn21khcKYG+8tkA18+mGCkFYuL2I=@/dlvinsight_prod?host=/cloudsql/dlvinsight-profit-analytics:europe-west1:dlvinsight-db-west1'
     : 'postgresql://postgres:yvYWVYXsrUTZyuKZn21khcKYG+8tkA18+mGCkFYuL2I=@35.241.144.115:5432/dlvinsight_prod?sslmode=disable'
 );
@@ -28,7 +28,7 @@ if (process.env.NEXT_PHASE === 'phase-production-build') {
       return () => {
         throw new Error('Database operations not available during build');
       };
-    }
+    },
   });
 } else {
   // Normal runtime database connection

@@ -37,7 +37,7 @@ export const StrategicDashboardSection = () => {
               From Data to Strategy
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Transform raw Amazon data into strategic insights with advanced 
+              Transform raw Amazon data into strategic insights with advanced
               business intelligence tools designed for serious sellers.
             </p>
             <div className="mt-8 space-y-4">
@@ -82,7 +82,7 @@ export const StrategicDashboardSection = () => {
                 Executive Dashboard
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                {metrics.map((metric) => (
+                {metrics.map(metric => (
                   <div key={metric.label} className="rounded-lg border p-4">
                     <div className="flex items-center justify-between">
                       <metric.icon className="size-5 text-muted-foreground" />

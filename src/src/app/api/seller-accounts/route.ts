@@ -1,10 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { db } from '@/libs/DB';
-import { sellerAccountSchema } from '@/models/Schema';
-import { requireAuthContext } from '@/libs/auth-helpers';
 import { eq } from 'drizzle-orm';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import { requireAuthContext } from '@/libs/auth-helpers';
+import { db } from '@/libs/DB';
 import { encryptSpApiCredentials } from '@/libs/encryption';
+import { sellerAccountSchema } from '@/models/Schema';
 
 // Validation schema for creating a seller account
 const createSellerAccountSchema = z.object({
@@ -35,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     // Get encryption password from environment variable
     const encryptionPassword = process.env.ENCRYPTION_PASSWORD || 'dev-encryption-password';
-    
+
     // Encrypt the sensitive credentials
     const encryptedCredentials = encryptSpApiCredentials({
       clientId: validatedData.credentials.lwaClientId,
@@ -45,8 +47,9 @@ export async function POST(request: NextRequest) {
 
     // Extract marketplace data from the request
     const marketplaceData = {
-      region: validatedData.marketplaceCode === 'US' ? 'NA' : 
-              ['DE', 'ES', 'FR', 'UK', 'IT'].includes(validatedData.marketplaceCode) ? 'EU' : 'OTHER',
+      region: validatedData.marketplaceCode === 'US'
+        ? 'NA'
+        : ['DE', 'ES', 'FR', 'UK', 'IT'].includes(validatedData.marketplaceCode) ? 'EU' : 'OTHER',
       currency: body.currency || 'USD',
       currencySymbol: body.currencySymbol || '$',
     };
@@ -91,24 +94,24 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating seller account:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (error instanceof Error && error.message.includes('Unauthorized')) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: 'Failed to create seller account' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -153,13 +156,13 @@ export async function GET() {
     if (error instanceof Error && error.message.includes('Unauthorized')) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: 'Failed to fetch seller accounts' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,14 +1,14 @@
-import { PlanPeriod } from '../value-objects/PlanPeriod';
 import { MetricType } from '../value-objects/MetricType';
+import type { PlanPeriod } from '../value-objects/PlanPeriod';
 
-export interface PlanMetric {
+export type PlanMetric = {
   metricType: MetricType;
   plannedValue: number;
   confidence: 'LOW' | 'MEDIUM' | 'HIGH';
   notes?: string;
-}
+};
 
-export interface PlanProps {
+export type PlanProps = {
   id: string;
   organizationId: string;
   sellerAccountId: string;
@@ -22,7 +22,7 @@ export interface PlanProps {
   approvedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
 export class Plan {
   private constructor(private props: PlanProps) {
@@ -91,7 +91,7 @@ export class Plan {
 
   private validateCalculatedMetrics(): void {
     const metricKeys = new Set(this.props.metrics.map(m => m.metricType.getKey()));
-    
+
     for (const metric of this.props.metrics) {
       if (metric.metricType.isCalculated()) {
         const formula = metric.metricType.getFormula();
@@ -104,7 +104,7 @@ export class Plan {
               try {
                 MetricType.fromKey(required);
                 console.warn(
-                  `Calculated metric ${metric.metricType.getKey()} depends on ${required} which is not in the plan`
+                  `Calculated metric ${metric.metricType.getKey()} depends on ${required} which is not in the plan`,
                 );
               } catch {
                 // Not a metric key, likely a constant or operator
@@ -176,7 +176,7 @@ export class Plan {
     }
 
     const exists = this.props.metrics.some(
-      m => m.metricType.equals(metric.metricType)
+      m => m.metricType.equals(metric.metricType),
     );
 
     if (exists) {
@@ -193,7 +193,7 @@ export class Plan {
     }
 
     const index = this.props.metrics.findIndex(
-      m => m.metricType.getKey() === metricKey
+      m => m.metricType.getKey() === metricKey,
     );
 
     if (index === -1) {
@@ -219,7 +219,7 @@ export class Plan {
     }
 
     this.props.metrics = this.props.metrics.filter(
-      m => m.metricType.getKey() !== metricKey
+      m => m.metricType.getKey() !== metricKey,
     );
     this.props.updatedAt = new Date();
   }
@@ -264,30 +264,30 @@ export class Plan {
 
   getMetricValue(metricKey: string): number | undefined {
     const metric = this.props.metrics.find(
-      m => m.metricType.getKey() === metricKey
+      m => m.metricType.getKey() === metricKey,
     );
     return metric?.plannedValue;
   }
 
   getTotalPlannedRevenue(): number {
     const revenueMetric = this.props.metrics.find(
-      m => m.metricType.getKey() === 'NET_REVENUE' || 
-           m.metricType.getKey() === 'GROSS_REVENUE'
+      m => m.metricType.getKey() === 'NET_REVENUE'
+        || m.metricType.getKey() === 'GROSS_REVENUE',
     );
     return revenueMetric?.plannedValue || 0;
   }
 
   getTotalPlannedProfit(): number {
     const profitMetric = this.props.metrics.find(
-      m => m.metricType.getKey() === 'NET_PROFIT'
+      m => m.metricType.getKey() === 'NET_PROFIT',
     );
     return profitMetric?.plannedValue || 0;
   }
 
   isActive(): boolean {
-    return this.props.status === 'ACTIVE' && 
-           new Date() >= this.props.period.getStartDate() &&
-           new Date() <= this.props.period.getEndDate();
+    return this.props.status === 'ACTIVE'
+      && new Date() >= this.props.period.getStartDate()
+      && new Date() <= this.props.period.getEndDate();
   }
 
   canEdit(): boolean {

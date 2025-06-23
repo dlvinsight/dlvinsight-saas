@@ -1,14 +1,14 @@
-import { PlanPeriod } from '../value-objects/PlanPeriod';
 import { MetricType } from '../value-objects/MetricType';
+import type { PlanPeriod } from '../value-objects/PlanPeriod';
 
-export interface ActualMetric {
+export type ActualMetric = {
   metricType: MetricType;
   actualValue: number;
   dataQuality: 'COMPLETE' | 'PARTIAL' | 'ESTIMATED';
   lastUpdated: Date;
-}
+};
 
-export interface ActualResultProps {
+export type ActualResultProps = {
   id: string;
   organizationId: string;
   sellerAccountId: string;
@@ -19,7 +19,7 @@ export interface ActualResultProps {
   lastSyncedAt: Date;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
 export class ActualResult {
   private constructor(private props: ActualResultProps) {
@@ -124,7 +124,7 @@ export class ActualResult {
   // Business Methods
   updateMetric(metric: ActualMetric): void {
     const index = this.props.metrics.findIndex(
-      m => m.metricType.equals(metric.metricType)
+      m => m.metricType.equals(metric.metricType),
     );
 
     if (index === -1) {
@@ -145,14 +145,14 @@ export class ActualResult {
 
   getMetricValue(metricKey: string): number | undefined {
     const metric = this.props.metrics.find(
-      m => m.metricType.getKey() === metricKey
+      m => m.metricType.getKey() === metricKey,
     );
     return metric?.actualValue;
   }
 
   getMetricQuality(metricKey: string): 'COMPLETE' | 'PARTIAL' | 'ESTIMATED' | undefined {
     const metric = this.props.metrics.find(
-      m => m.metricType.getKey() === metricKey
+      m => m.metricType.getKey() === metricKey,
     );
     return metric?.dataQuality;
   }
@@ -164,21 +164,21 @@ export class ActualResult {
     }
 
     const completeMetrics = this.props.metrics.filter(
-      m => m.dataQuality === 'COMPLETE'
+      m => m.dataQuality === 'COMPLETE',
     ).length;
 
     const partialMetrics = this.props.metrics.filter(
-      m => m.dataQuality === 'PARTIAL'
+      m => m.dataQuality === 'PARTIAL',
     ).length;
 
     // Complete metrics count as 100%, partial as 50%, estimated as 25%
-    const totalScore = 
-      (completeMetrics * 1) + 
-      (partialMetrics * 0.5) + 
-      ((this.props.metrics.length - completeMetrics - partialMetrics) * 0.25);
+    const totalScore
+      = (completeMetrics * 1)
+      + (partialMetrics * 0.5)
+      + ((this.props.metrics.length - completeMetrics - partialMetrics) * 0.25);
 
     this.props.dataCompleteness = Math.round(
-      (totalScore / this.props.metrics.length) * 100
+      (totalScore / this.props.metrics.length) * 100,
     );
   }
 
@@ -192,8 +192,8 @@ export class ActualResult {
   }
 
   isDataStale(hoursThreshold: number = 24): boolean {
-    const hoursSinceSync = 
-      (Date.now() - this.props.lastSyncedAt.getTime()) / (1000 * 60 * 60);
+    const hoursSinceSync
+      = (Date.now() - this.props.lastSyncedAt.getTime()) / (1000 * 60 * 60);
     return hoursSinceSync > hoursThreshold;
   }
 
@@ -204,15 +204,15 @@ export class ActualResult {
 
   getTotalActualRevenue(): number {
     const revenueMetric = this.props.metrics.find(
-      m => m.metricType.getKey() === 'NET_REVENUE' || 
-           m.metricType.getKey() === 'GROSS_REVENUE'
+      m => m.metricType.getKey() === 'NET_REVENUE'
+        || m.metricType.getKey() === 'GROSS_REVENUE',
     );
     return revenueMetric?.actualValue || 0;
   }
 
   getTotalActualProfit(): number {
     const profitMetric = this.props.metrics.find(
-      m => m.metricType.getKey() === 'NET_PROFIT'
+      m => m.metricType.getKey() === 'NET_PROFIT',
     );
     return profitMetric?.actualValue || 0;
   }
@@ -220,8 +220,10 @@ export class ActualResult {
   getProfitMargin(): number {
     const revenue = this.getTotalActualRevenue();
     const profit = this.getTotalActualProfit();
-    
-    if (revenue === 0) return 0;
+
+    if (revenue === 0) {
+      return 0;
+    }
     return (profit / revenue) * 100;
   }
 
@@ -230,11 +232,11 @@ export class ActualResult {
     // This would implement the formulas defined in MetricType
     // For now, keeping it simple
     const updatedAt = new Date();
-    
+
     // Example: Calculate profit margin if we have revenue and profit
     const revenue = this.getMetricValue('NET_REVENUE');
     const profit = this.getMetricValue('NET_PROFIT');
-    
+
     if (revenue && profit && revenue > 0) {
       const profitMargin = (profit / revenue) * 100;
       this.updateMetric({

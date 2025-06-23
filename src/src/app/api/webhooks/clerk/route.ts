@@ -1,10 +1,11 @@
-import { Webhook } from 'svix';
+import type { WebhookEvent } from '@clerk/nextjs/server';
+import { and, eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
-import { WebhookEvent } from '@clerk/nextjs/server';
+import { Webhook } from 'svix';
+
 import { db } from '@/libs/DB';
-import { userSchema, organizationSchema, userOrganizationSchema, clerkWebhookEventSchema } from '@/models/Schema';
-import { eq, and } from 'drizzle-orm';
 import { logger } from '@/libs/Logger';
+import { clerkWebhookEventSchema, organizationSchema, userOrganizationSchema, userSchema } from '@/models/Schema';
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -16,9 +17,9 @@ export async function POST(req: Request) {
 
   // Get headers
   const headerPayload = headers();
-  const svix_id = headerPayload.get("svix-id");
-  const svix_timestamp = headerPayload.get("svix-timestamp");
-  const svix_signature = headerPayload.get("svix-signature");
+  const svix_id = headerPayload.get('svix-id');
+  const svix_timestamp = headerPayload.get('svix-timestamp');
+  const svix_signature = headerPayload.get('svix-signature');
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
     logger.error('Missing svix headers');
@@ -43,9 +44,9 @@ export async function POST(req: Request) {
   } else {
     try {
       evt = wh.verify(body, {
-        "svix-id": svix_id,
-        "svix-timestamp": svix_timestamp,
-        "svix-signature": svix_signature,
+        'svix-id': svix_id,
+        'svix-timestamp': svix_timestamp,
+        'svix-signature': svix_signature,
       }) as WebhookEvent;
     } catch (err) {
       logger.error('Webhook verification failed', err);
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
   // Store webhook event in database
   try {
     await db.insert(clerkWebhookEventSchema).values({
-      eventType: eventType,
+      eventType,
       eventId: svix_id,
       payload: evt as any,
       processedAt: null,
@@ -74,39 +75,39 @@ export async function POST(req: Request) {
       case 'user.created':
         await handleUserCreated(evt.data);
         break;
-      
+
       case 'user.updated':
         await handleUserUpdated(evt.data);
         break;
-      
+
       case 'user.deleted':
         await handleUserDeleted(evt.data);
         break;
-      
+
       case 'organization.created':
         await handleOrganizationCreated(evt.data);
         break;
-      
+
       case 'organization.updated':
         await handleOrganizationUpdated(evt.data);
         break;
-      
+
       case 'organization.deleted':
         await handleOrganizationDeleted(evt.data);
         break;
-      
+
       case 'organizationMembership.created':
         await handleMembershipCreated(evt.data);
         break;
-      
+
       case 'organizationMembership.updated':
         await handleMembershipUpdated(evt.data);
         break;
-      
+
       case 'organizationMembership.deleted':
         await handleMembershipDeleted(evt.data);
         break;
-      
+
       default:
         logger.warn(`Unhandled webhook type: ${eventType}`);
     }
@@ -126,7 +127,7 @@ export async function POST(req: Request) {
 // User handlers
 async function handleUserCreated(userData: any) {
   logger.info('Creating user', { userId: userData.id });
-  
+
   await db.insert(userSchema).values({
     clerkUserId: userData.id,
     email: userData.email_addresses[0].email_address,
@@ -140,7 +141,7 @@ async function handleUserCreated(userData: any) {
 
 async function handleUserUpdated(userData: any) {
   logger.info('Updating user', { userId: userData.id });
-  
+
   const result = await db.update(userSchema)
     .set({
       email: userData.email_addresses[0].email_address,
@@ -160,14 +161,14 @@ async function handleUserUpdated(userData: any) {
 
 async function handleUserDeleted(userData: any) {
   logger.info('Deleting user', { userId: userData.id });
-  
+
   await db.delete(userSchema).where(eq(userSchema.clerkUserId, userData.id));
 }
 
 // Organization handlers
 async function handleOrganizationCreated(orgData: any) {
   logger.info('Creating organization', { orgId: orgData.id });
-  
+
   await db.insert(organizationSchema).values({
     clerkOrgId: orgData.id,
     name: orgData.name,
@@ -178,7 +179,7 @@ async function handleOrganizationCreated(orgData: any) {
 
 async function handleOrganizationUpdated(orgData: any) {
   logger.info('Updating organization', { orgId: orgData.id });
-  
+
   const result = await db.update(organizationSchema)
     .set({
       name: orgData.name,
@@ -195,15 +196,15 @@ async function handleOrganizationUpdated(orgData: any) {
 
 async function handleOrganizationDeleted(orgData: any) {
   logger.info('Deleting organization', { orgId: orgData.id });
-  
+
   await db.delete(organizationSchema).where(eq(organizationSchema.clerkOrgId, orgData.id));
 }
 
 // Membership handlers
 async function handleMembershipCreated(membershipData: any) {
-  logger.info('Creating membership', { 
+  logger.info('Creating membership', {
     userId: membershipData.public_user_data?.user_id,
-    orgId: membershipData.organization.id 
+    orgId: membershipData.organization.id,
   });
 
   // Get or create the user
@@ -242,13 +243,13 @@ async function handleMembershipCreated(membershipData: any) {
 }
 
 async function handleMembershipUpdated(membershipData: any) {
-  logger.info('Updating membership', { 
+  logger.info('Updating membership', {
     userId: membershipData.public_user_data?.user_id,
-    orgId: membershipData.organization.id 
+    orgId: membershipData.organization.id,
   });
 
   const userId = membershipData.public_user_data?.user_id;
-  
+
   // Get the internal user and org IDs
   const [user] = await db.select().from(userSchema).where(eq(userSchema.clerkUserId, userId)).limit(1);
   const [org] = await db.select().from(organizationSchema).where(eq(organizationSchema.clerkOrgId, membershipData.organization.id)).limit(1);
@@ -261,20 +262,20 @@ async function handleMembershipUpdated(membershipData: any) {
       .where(
         and(
           eq(userOrganizationSchema.organizationId, org.id),
-          eq(userOrganizationSchema.userId, user.id)
-        )
+          eq(userOrganizationSchema.userId, user.id),
+        ),
       );
   }
 }
 
 async function handleMembershipDeleted(membershipData: any) {
-  logger.info('Deleting membership', { 
+  logger.info('Deleting membership', {
     userId: membershipData.public_user_data?.user_id,
-    orgId: membershipData.organization.id 
+    orgId: membershipData.organization.id,
   });
 
   const userId = membershipData.public_user_data?.user_id;
-  
+
   // Get the internal user and org IDs
   const [user] = await db.select().from(userSchema).where(eq(userSchema.clerkUserId, userId)).limit(1);
   const [org] = await db.select().from(organizationSchema).where(eq(organizationSchema.clerkOrgId, membershipData.organization.id)).limit(1);
@@ -284,8 +285,8 @@ async function handleMembershipDeleted(membershipData: any) {
       .where(
         and(
           eq(userOrganizationSchema.organizationId, org.id),
-          eq(userOrganizationSchema.userId, user.id)
-        )
+          eq(userOrganizationSchema.userId, user.id),
+        ),
       );
   }
 }

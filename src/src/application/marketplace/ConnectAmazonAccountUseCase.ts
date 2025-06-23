@@ -1,9 +1,9 @@
 import { SellerAccount } from '@/domain/marketplace/amazon/entities/SellerAccount';
-import { ISellerAccountRepository } from '@/domain/marketplace/amazon/repositories/ISellerAccountRepository';
 import { AccountConnectedEvent } from '@/domain/marketplace/amazon/events/AccountConnectedEvent';
+import type { ISellerAccountRepository } from '@/domain/marketplace/amazon/repositories/ISellerAccountRepository';
 import { SellerId } from '@/domain/marketplace/amazon/value-objects/SellerId';
 
-export interface ConnectAmazonAccountCommand {
+export type ConnectAmazonAccountCommand = {
   organizationId: string;
   userId: string;
   sellerId: string;
@@ -15,13 +15,13 @@ export interface ConnectAmazonAccountCommand {
     region: 'NA' | 'EU' | 'FE';
   };
   accountName: string;
-}
+};
 
-export interface ConnectAmazonAccountResult {
+export type ConnectAmazonAccountResult = {
   success: boolean;
   accountId?: string;
   error?: string;
-}
+};
 
 export class ConnectAmazonAccountUseCase {
   constructor(
@@ -38,7 +38,7 @@ export class ConnectAmazonAccountUseCase {
       const sellerId = SellerId.create(command.sellerId);
       const existingAccount = await this.sellerAccountRepository.exists(
         sellerId,
-        command.organizationId
+        command.organizationId,
       );
 
       if (existingAccount) {
@@ -85,7 +85,6 @@ export class ConnectAmazonAccountUseCase {
         success: true,
         accountId: sellerAccount.getId(),
       };
-
     } catch (error) {
       return {
         success: false,
@@ -119,9 +118,9 @@ export class ConnectAmazonAccountUseCase {
       throw new Error('API credentials are required');
     }
 
-    if (!command.apiCredentials.clientId || 
-        !command.apiCredentials.clientSecret || 
-        !command.apiCredentials.refreshToken) {
+    if (!command.apiCredentials.clientId
+      || !command.apiCredentials.clientSecret
+      || !command.apiCredentials.refreshToken) {
       throw new Error('All API credential fields are required');
     }
   }
@@ -135,7 +134,7 @@ export class ConnectAmazonAccountUseCase {
 
     // For now, we'll do basic validation
     const credentials = account.getApiCredentials().getFullCredentials();
-    
+
     // Check if credentials look valid
     if (!credentials.clientId.startsWith('amzn1.application-oa2-client.')) {
       return false;

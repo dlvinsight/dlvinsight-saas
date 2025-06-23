@@ -32,18 +32,18 @@ export const ForecastingSection = () => {
             Predict Tomorrow's Success Today
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            AI-powered forecasting engine analyzes historical data, market trends, 
+            AI-powered forecasting engine analyzes historical data, market trends,
             and seasonality to predict future performance with unprecedented accuracy.
           </p>
         </div>
-        
+
         <div className="mt-12">
           <div className="rounded-lg border bg-background p-8 shadow-lg">
             <div className="mb-6 text-center text-sm font-medium text-muted-foreground">
               90-Day Revenue Forecast
             </div>
             <div className="relative h-48">
-              <svg className="h-full w-full" viewBox="0 0 400 200">
+              <svg className="size-full" viewBox="0 0 400 200">
                 <defs>
                   <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="rgb(99, 102, 241)" stopOpacity="0.2" />
@@ -79,11 +79,11 @@ export const ForecastingSection = () => {
             </div>
             <div className="mt-6 flex justify-center gap-8 text-sm">
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-indigo-500" />
+                <div className="size-3 rounded-full bg-indigo-500" />
                 <span className="text-muted-foreground">Historical</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full border-2 border-indigo-500" />
+                <div className="size-3 rounded-full border-2 border-indigo-500" />
                 <span className="text-muted-foreground">Forecast</span>
               </div>
               <div className="flex items-center gap-2">
@@ -95,7 +95,7 @@ export const ForecastingSection = () => {
         </div>
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature) => (
+          {features.map(feature => (
             <div key={feature.title} className="text-center">
               <div className="mx-auto flex size-12 items-center justify-center rounded-lg bg-primary/10">
                 <feature.icon className="size-6 text-primary" />

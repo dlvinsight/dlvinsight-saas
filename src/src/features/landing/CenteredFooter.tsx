@@ -7,7 +7,6 @@ export const CenteredFooter = (props: {
   legalLinks: React.ReactNode;
   children: React.ReactNode;
 }) => {
-
   return (
     <div className="flex flex-col items-center text-center">
       {props.logo}

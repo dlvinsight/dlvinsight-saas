@@ -17,12 +17,12 @@ export const PlanVsFactSection = () => {
               Forecast First, Measure Second
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Create detailed P&L forecasts and compare them to actual results. 
-              Identify gaps, optimize performance, and make data-driven adjustments 
+              Create detailed P&L forecasts and compare them to actual results.
+              Identify gaps, optimize performance, and make data-driven adjustments
               to hit your targets.
             </p>
             <ul className="mt-8 space-y-3">
-              {benefits.map((benefit) => (
+              {benefits.map(benefit => (
                 <li key={benefit} className="flex items-start">
                   <CheckIcon className="mr-3 mt-0.5 size-5 shrink-0 text-primary" />
                   <span className="text-muted-foreground">{benefit}</span>

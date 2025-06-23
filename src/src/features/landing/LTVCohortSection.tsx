@@ -30,7 +30,7 @@ export const LTVCohortSection = () => {
                     <span className="font-medium">$284 LTV</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full w-full bg-gradient-to-r from-green-500 to-green-600" />
+                    <div className="size-full bg-gradient-to-r from-green-500 to-green-600" />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -62,12 +62,12 @@ export const LTVCohortSection = () => {
               Know Your Customer's True Value
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Advanced cohort analysis reveals customer lifetime value patterns, 
-              helping you optimize acquisition costs and maximize long-term 
+              Advanced cohort analysis reveals customer lifetime value patterns,
+              helping you optimize acquisition costs and maximize long-term
               profitability.
             </p>
             <ul className="mt-8 space-y-3">
-              {benefits.map((benefit) => (
+              {benefits.map(benefit => (
                 <li key={benefit} className="flex items-start">
                   <div className="mr-3 mt-1 size-2 shrink-0 rounded-full bg-primary" />
                   <span className="text-muted-foreground">{benefit}</span>
