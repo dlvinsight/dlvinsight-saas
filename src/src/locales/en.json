@@ -101,6 +101,7 @@
   "DashboardLayout": {
     "home": "Home",
     "sources": "Sources",
+    "products": "Products",
     "todos": "Todos",
     "members": "Members",
     "billing": "Billing",
@@ -217,6 +218,27 @@
       "refresh_token": "Refresh Token",
       "save_credentials": "Save Credentials",
       "sandbox_notice": "This is a sandbox account for testing purposes. Data will be simulated and not real."
+    }
+  },
+  "Products": {
+    "meta_title": "Products",
+    "meta_description": "View and manage your Amazon product catalog",
+    "page_title": "Products",
+    "page_description": "View and manage your product catalog across Amazon marketplaces",
+    "loading_accounts": "Loading accounts...",
+    "no_accounts": "No accounts connected",
+    "go_to_sources": "Go to Sources",
+    "select_account": "Select an account",
+    "fetch_products": "Fetch Products",
+    "no_products": "No products loaded",
+    "no_products_description": "Click 'Fetch Products' to load products from the selected account",
+    "table": {
+      "sku": "SKU",
+      "asin": "ASIN",
+      "product_name": "Product Name",
+      "brand": "Brand",
+      "status": "Status",
+      "price": "Price"
     }
   }
 }
