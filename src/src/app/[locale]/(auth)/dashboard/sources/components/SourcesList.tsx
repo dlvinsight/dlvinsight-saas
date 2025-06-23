@@ -1,12 +1,18 @@
 'use client';
 
 import { useOrganization } from '@clerk/nextjs';
-import { Plus, Settings } from 'lucide-react';
+import { Plus, Settings, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -16,7 +22,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import { createTestSellerAccount, fetchSellerAccounts } from '../actions';
+import { 
+  createTestSellerAccount, 
+  fetchSellerAccounts,
+  removeSellerAccount,
+  testSellerAccountConnection
+} from '../actions';
 import { AddAccountModal } from './AddAccountModal';
 import { OAuthCallbackHandler } from './OAuthCallbackHandler';
 
@@ -66,10 +77,33 @@ export function SourcesList() {
     }
   };
 
-  const handleAccountSettings = (accountId: string) => {
-    // TODO: Navigate to account settings page
-    // eslint-disable-next-line no-console
-    console.log('Settings for account:', accountId);
+  const handleTestConnection = async (accountId: string) => {
+    const result = await testSellerAccountConnection(accountId);
+    
+    if (result.success) {
+      // eslint-disable-next-line no-alert
+      alert(`Success: ${result.message}`);
+    } else {
+      // eslint-disable-next-line no-alert
+      alert(`Error: ${result.error}`);
+    }
+  };
+
+  const handleRemoveAccount = async (accountId: string) => {
+    // eslint-disable-next-line no-confirm
+    if (confirm('Are you sure you want to remove this account?')) {
+      const result = await removeSellerAccount(accountId);
+      
+      if (result.success) {
+        // Remove from local state
+        setAccounts(accounts.filter(acc => acc.id !== accountId));
+        // eslint-disable-next-line no-alert
+        alert('Account removed successfully');
+      } else {
+        // eslint-disable-next-line no-alert
+        alert(`Error: ${result.error}`);
+      }
+    }
   };
 
   const getStatusBadge = (status: SellerAccount['status']) => {
@@ -157,13 +191,34 @@ export function SourcesList() {
                           : t('never_synced')}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleAccountSettings(account.id)}
-                        >
-                          <Settings className="size-4" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleTestConnection(account.id)}
+                          >
+                            Test Connection
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                              >
+                                <Settings className="size-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem 
+                                onClick={() => handleRemoveAccount(account.id)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="mr-2 size-4" />
+                                Remove
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

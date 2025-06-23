@@ -97,8 +97,8 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
   const [accountName, setAccountName] = useState('');
 
   // Manual connection fields
-  const [awsEnvironment, setAwsEnvironment] = useState('PRODUCTION');
-  const [accountType, setAccountType] = useState('Seller');
+  const [awsEnvironment, setAwsEnvironment] = useState<'PRODUCTION' | 'SANDBOX'>('PRODUCTION');
+  const [accountType, setAccountType] = useState<'Seller' | 'Vendor'>('Seller');
   const [lwaClientId, setLwaClientId] = useState('');
   const [lwaClientSecret, setLwaClientSecret] = useState('');
   const [refreshToken, setRefreshToken] = useState('');
@@ -358,7 +358,7 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
 
               <div>
                 <Label htmlFor="awsEnvironment">{t('aws_environment')}</Label>
-                <Select value={awsEnvironment} onValueChange={setAwsEnvironment}>
+                <Select value={awsEnvironment} onValueChange={(value: string) => setAwsEnvironment(value as 'PRODUCTION' | 'SANDBOX')}>
                   <SelectTrigger id="awsEnvironment">
                     <SelectValue />
                   </SelectTrigger>
@@ -380,7 +380,7 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
 
               <div>
                 <Label htmlFor="accountType">{t('account_type')}</Label>
-                <Select value={accountType} onValueChange={setAccountType}>
+                <Select value={accountType} onValueChange={(value: string) => setAccountType(value as 'Seller' | 'Vendor')}>
                   <SelectTrigger id="accountType">
                     <SelectValue />
                   </SelectTrigger>

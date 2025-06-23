@@ -213,3 +213,95 @@ export async function fetchSellerAccounts() {
     };
   }
 }
+
+export async function testSellerAccountConnection(accountId: string) {
+  try {
+    const { organization } = await getAuthContext();
+    
+    if (!organization) {
+      return {
+        success: false,
+        error: 'Organization not found',
+      };
+    }
+
+    // Fetch the account to test
+    const accounts = await db
+      .select()
+      .from(sellerAccountSchema)
+      .where(eq(sellerAccountSchema.id, accountId))
+      .limit(1);
+
+    const account = accounts[0];
+    if (!account || account.organizationId !== organization.id) {
+      return {
+        success: false,
+        error: 'Account not found',
+      };
+    }
+
+    // TODO: Implement actual SP-API connection test
+    // For now, just return success
+    return {
+      success: true,
+      message: `Connection test for ${account.accountName} would be implemented here`,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to test connection',
+    };
+  }
+}
+
+export async function removeSellerAccount(accountId: string) {
+  try {
+    const { organization } = await getAuthContext();
+    
+    if (!organization) {
+      return {
+        success: false,
+        error: 'Organization not found',
+      };
+    }
+
+    // First check if the account exists and belongs to the organization
+    const accountToDelete = await db
+      .select()
+      .from(sellerAccountSchema)
+      .where(eq(sellerAccountSchema.id, accountId))
+      .limit(1);
+
+    if (accountToDelete.length === 0) {
+      return {
+        success: false,
+        error: 'Account not found',
+      };
+    }
+
+    if (accountToDelete[0]?.organizationId !== organization.id) {
+      return {
+        success: false,
+        error: 'Unauthorized to delete this account',
+      };
+    }
+
+    // Delete the account
+    const result = await db
+      .delete(sellerAccountSchema)
+      .where(eq(sellerAccountSchema.id, accountId))
+      .returning();
+
+    console.log('Deleted account:', result);
+
+    return {
+      success: true,
+      message: 'Account removed successfully',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to remove account',
+    };
+  }
+}
