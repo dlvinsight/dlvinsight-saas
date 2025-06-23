@@ -187,7 +187,9 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
           lwaClientId,
           lwaClientSecret,
           refreshToken,
-          endpoint: selectedMarketplace.endpoint,
+          endpoint: awsEnvironment === 'SANDBOX'
+            ? selectedMarketplace.endpoint.replace('https://sellingpartnerapi', 'https://sandbox.sellingpartnerapi')
+            : selectedMarketplace.endpoint,
         },
       };
 

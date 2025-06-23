@@ -265,10 +265,15 @@ export async function testSellerAccountConnection(accountId: string) {
       refreshToken: account.refreshToken,
     }, encryptionPassword);
 
+    // For sandbox accounts, use the sandbox endpoint
+    const endpoint = account.awsEnvironment === 'SANDBOX'
+      ? account.endpoint.replace('https://sellingpartnerapi', 'https://sandbox.sellingpartnerapi')
+      : account.endpoint;
+
     console.log('Testing connection for account:', {
       accountName: account.accountName,
       marketplaceId: account.marketplaceId,
-      endpoint: account.endpoint,
+      endpoint,
       awsEnvironment: account.awsEnvironment,
     });
 
@@ -280,7 +285,7 @@ export async function testSellerAccountConnection(accountId: string) {
     );
 
     // Test the connection using the access token and verify marketplace
-    const connectionTest = await testSpApiConnection(accessToken, account.endpoint, account.marketplaceId);
+    const connectionTest = await testSpApiConnection(accessToken, endpoint, account.marketplaceId);
 
     if (connectionTest.success) {
       // Check if the marketplace is valid

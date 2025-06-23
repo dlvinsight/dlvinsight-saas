@@ -107,4 +107,3 @@ export function OAuthCallbackHandler({ onAccountAdded }: OAuthCallbackHandlerPro
 
   return null;
 }
-

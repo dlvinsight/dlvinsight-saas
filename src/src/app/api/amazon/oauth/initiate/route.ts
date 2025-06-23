@@ -92,4 +92,3 @@ function buildOAuthUrl(region: string, _marketplace: string, state: string, isSa
 
   return `${baseUrl}?${params.toString()}`;
 }
-

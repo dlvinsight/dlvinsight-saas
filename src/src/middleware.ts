@@ -29,11 +29,11 @@ export default function middleware(
 
   // Check if it's a webhook endpoint, OAuth endpoint, or health endpoint - handle these first without any auth
   if (
-    pathname.startsWith('/api/webhooks/') || 
-    pathname.includes('/api/webhooks/') ||
-    pathname.startsWith('/api/amazon/oauth/') ||
-    pathname.includes('/api/amazon/oauth/') ||
-    pathname === '/api/health'
+    pathname.startsWith('/api/webhooks/')
+    || pathname.includes('/api/webhooks/')
+    || pathname.startsWith('/api/amazon/oauth/')
+    || pathname.includes('/api/amazon/oauth/')
+    || pathname === '/api/health'
   ) {
     // For webhooks, OAuth, and health endpoints, only apply intl middleware, skip Clerk auth entirely
     return intlMiddleware(request);
