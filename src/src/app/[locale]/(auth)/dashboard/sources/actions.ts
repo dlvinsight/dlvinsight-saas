@@ -2,15 +2,16 @@
 
 import { eq } from 'drizzle-orm';
 
+import { exchangeRefreshTokenForAccess, testSpApiConnection } from '@/libs/amazon-sp-api';
 import { getAuthContext } from '@/libs/auth-helpers';
 import { db } from '@/libs/DB';
-import { encryptSpApiCredentials } from '@/libs/encryption';
+import { decryptSpApiCredentials, encryptSpApiCredentials } from '@/libs/encryption';
 import { sellerAccountSchema } from '@/models/Schema';
 
 export async function createTestSellerAccount() {
   try {
     const { user, organization } = await getAuthContext();
-    
+
     if (!user || !organization) {
       throw new Error('User or organization not found');
     }
@@ -82,7 +83,7 @@ export async function saveSellerAccount(accountData: {
 }) {
   try {
     const { user, organization } = await getAuthContext();
-    
+
     if (!user || !organization) {
       return {
         success: false,
@@ -163,7 +164,7 @@ export async function saveSellerAccount(accountData: {
 export async function fetchSellerAccounts() {
   try {
     const { organization } = await getAuthContext();
-    
+
     if (!organization) {
       return {
         success: false,
@@ -217,7 +218,7 @@ export async function fetchSellerAccounts() {
 export async function testSellerAccountConnection(accountId: string) {
   try {
     const { organization } = await getAuthContext();
-    
+
     if (!organization) {
       return {
         success: false,
@@ -240,13 +241,81 @@ export async function testSellerAccountConnection(accountId: string) {
       };
     }
 
-    // TODO: Implement actual SP-API connection test
-    // For now, just return success
-    return {
-      success: true,
-      message: `Connection test for ${account.accountName} would be implemented here`,
-    };
+    // Get encryption password from environment variable
+    const encryptionPassword = process.env.ENCRYPTION_PASSWORD;
+    if (!encryptionPassword) {
+      return {
+        success: false,
+        error: 'Encryption password not configured',
+      };
+    }
+
+    // Check if credentials exist
+    if (!account.lwaClientId || !account.lwaClientSecret || !account.refreshToken) {
+      return {
+        success: false,
+        error: 'SP-API credentials not found for this account',
+      };
+    }
+
+    // Decrypt the SP-API credentials
+    const credentials = decryptSpApiCredentials({
+      lwaClientId: account.lwaClientId,
+      lwaClientSecret: account.lwaClientSecret,
+      refreshToken: account.refreshToken,
+    }, encryptionPassword);
+
+    // Exchange refresh token for access token
+    const { accessToken } = await exchangeRefreshTokenForAccess(
+      credentials.refreshToken,
+      credentials.clientId,
+      credentials.clientSecret,
+    );
+
+    // Test the connection using the access token
+    const connectionTest = await testSpApiConnection(accessToken, account.endpoint);
+
+    if (connectionTest.success) {
+      // Update lastSyncAt on successful connection
+      await db
+        .update(sellerAccountSchema)
+        .set({ lastSyncAt: new Date() })
+        .where(eq(sellerAccountSchema.id, accountId));
+
+      return {
+        success: true,
+        message: `Successfully connected to ${account.accountName}`,
+        marketplaces: connectionTest.marketplaces,
+      };
+    } else {
+      return {
+        success: false,
+        error: connectionTest.error || 'Connection test failed',
+      };
+    }
   } catch (error) {
+    console.error('Connection test error:', error);
+
+    // Return specific error messages based on error type
+    if (error instanceof Error) {
+      if (error.message.includes('Invalid credentials')) {
+        return {
+          success: false,
+          error: 'Invalid SP-API credentials. Please check your Client ID and Client Secret.',
+        };
+      } else if (error.message.includes('Expired or invalid refresh token')) {
+        return {
+          success: false,
+          error: 'Your refresh token has expired or is invalid. Please reauthorize your Amazon account.',
+        };
+      } else if (error.message.includes('Network error')) {
+        return {
+          success: false,
+          error: 'Network error. Please check your internet connection and try again.',
+        };
+      }
+    }
+
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to test connection',
@@ -257,7 +326,7 @@ export async function testSellerAccountConnection(accountId: string) {
 export async function removeSellerAccount(accountId: string) {
   try {
     const { organization } = await getAuthContext();
-    
+
     if (!organization) {
       return {
         success: false,
