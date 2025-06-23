@@ -31,7 +31,9 @@ if (process.env.NEXT_PHASE === 'phase-production-build') {
     },
   });
 } else {
-  // Normal runtime database connection
+  // Normal runtime database connection with fallback
+  let connectionError: any;
+  
   try {
     const client = new Client({
       connectionString: DATABASE_URL,
@@ -54,9 +56,36 @@ if (process.env.NEXT_PHASE === 'phase-production-build') {
       }
     }
   } catch (error) {
-    console.error('Database connection error:', error);
-    // For API routes during runtime, we need to handle this properly
-    throw error;
+    connectionError = error;
+    console.error('Initial database connection error:', error);
+    
+    // If we're on Cloud Run and the socket connection failed, try direct IP
+    if (isCloudRun && DATABASE_URL.includes('/cloudsql/')) {
+      console.log('Attempting fallback to direct IP connection...');
+      
+      try {
+        const fallbackUrl = 'postgresql://postgres:yvYWVYXsrUTZyuKZn21khcKYG+8tkA18+mGCkFYuL2I=@35.241.144.115:5432/dlvinsight_prod';
+        const fallbackClient = new Client({
+          connectionString: fallbackUrl,
+        });
+        
+        await fallbackClient.connect();
+        console.log('Fallback database connection successful');
+        
+        db = drizzle(fallbackClient, { schema });
+        
+        // Clear the error since we connected successfully
+        connectionError = null;
+      } catch (fallbackError) {
+        console.error('Fallback connection also failed:', fallbackError);
+        // Keep the original error
+      }
+    }
+    
+    // If we still have an error, throw it
+    if (connectionError) {
+      throw connectionError;
+    }
   }
 }
 
