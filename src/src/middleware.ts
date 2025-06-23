@@ -26,10 +26,15 @@ export default function middleware(
   event: NextFetchEvent,
 ) {
   const pathname = request.nextUrl.pathname;
-  
-  // Check if it's a webhook endpoint - handle these first without any auth
-  if (pathname.startsWith('/api/webhooks/') || pathname.includes('/api/webhooks/')) {
-    // For webhooks, only apply intl middleware, skip Clerk auth entirely
+
+  // Check if it's a webhook endpoint or OAuth endpoint - handle these first without any auth
+  if (
+    pathname.startsWith('/api/webhooks/') || 
+    pathname.includes('/api/webhooks/') ||
+    pathname.startsWith('/api/amazon/oauth/') ||
+    pathname.includes('/api/amazon/oauth/')
+  ) {
+    // For webhooks and OAuth endpoints, only apply intl middleware, skip Clerk auth entirely
     return intlMiddleware(request);
   }
 
@@ -37,7 +42,7 @@ export default function middleware(
   const isSignInOrUp = pathname.includes('/sign-in') || pathname.includes('/sign-up');
   const isProtected = isProtectedRoute(request);
   const isApiRoute = pathname.startsWith('/api/') || pathname.includes('/api/');
-  
+
   // Apply Clerk middleware for sign-in/up pages, protected routes, and non-webhook API routes
   if (isSignInOrUp || isProtected || isApiRoute) {
     return clerkMiddleware(async (auth, req) => {
@@ -83,9 +88,10 @@ export const config = {
     // - _next paths
     // - monitoring (Sentry tunnel)
     // - api/webhooks paths
-    '/((?!.+\\.[\\w]+$|_next|monitoring|api/webhooks).*)', 
-    '/', 
-    // Match API routes but exclude webhooks
-    '/(api/(?!webhooks)|trpc)(.*)'
+    // - api/amazon/oauth paths
+    '/((?!.+\\.[\\w]+$|_next|monitoring|api/webhooks|api/amazon/oauth).*)',
+    '/',
+    // Match API routes but exclude webhooks and OAuth
+    '/(api/(?!webhooks|amazon/oauth)|trpc)(.*)',
   ],
 };

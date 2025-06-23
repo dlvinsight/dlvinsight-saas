@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 
 import { TitleBar } from '@/features/dashboard/TitleBar';
+
 import { SourcesList } from './components/SourcesList';
 
 export async function generateMetadata(props: { params: { locale: string } }) {
@@ -27,3 +28,4 @@ export default async function SourcesPage() {
     </>
   );
 }
+

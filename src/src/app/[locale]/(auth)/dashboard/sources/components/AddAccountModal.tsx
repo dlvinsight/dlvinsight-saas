@@ -1,25 +1,26 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
-interface AddAccountModalProps {
+import { Button } from '@/components/ui/button';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+type AddAccountModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAccountAdded: (account: any) => void;
-}
+};
 
 type Step = 'marketplace' | 'connection' | 'manual';
 
-interface MarketplaceOption {
+type MarketplaceOption = {
   id: string;
   name: string;
   code: string;
@@ -27,7 +28,7 @@ interface MarketplaceOption {
   currency: string;
   currencySymbol: string;
   endpoint: string;
-}
+};
 
 const MARKETPLACES: MarketplaceOption[] = [
   {
@@ -37,7 +38,7 @@ const MARKETPLACES: MarketplaceOption[] = [
     region: 'NA',
     currency: 'USD',
     currencySymbol: '$',
-    endpoint: 'https://sellingpartnerapi-na.amazon.com'
+    endpoint: 'https://sellingpartnerapi-na.amazon.com',
   },
   {
     id: 'A1PA6795UKMFR9',
@@ -46,7 +47,7 @@ const MARKETPLACES: MarketplaceOption[] = [
     region: 'EU',
     currency: 'EUR',
     currencySymbol: '€',
-    endpoint: 'https://sellingpartnerapi-eu.amazon.com'
+    endpoint: 'https://sellingpartnerapi-eu.amazon.com',
   },
   {
     id: 'A1RKKUPIHCS9HS',
@@ -55,7 +56,7 @@ const MARKETPLACES: MarketplaceOption[] = [
     region: 'EU',
     currency: 'EUR',
     currencySymbol: '€',
-    endpoint: 'https://sellingpartnerapi-eu.amazon.com'
+    endpoint: 'https://sellingpartnerapi-eu.amazon.com',
   },
   {
     id: 'A13V1IB3VIYZZH',
@@ -64,7 +65,7 @@ const MARKETPLACES: MarketplaceOption[] = [
     region: 'EU',
     currency: 'EUR',
     currencySymbol: '€',
-    endpoint: 'https://sellingpartnerapi-eu.amazon.com'
+    endpoint: 'https://sellingpartnerapi-eu.amazon.com',
   },
   {
     id: 'A1F83G8C2ARO7P',
@@ -73,7 +74,7 @@ const MARKETPLACES: MarketplaceOption[] = [
     region: 'EU',
     currency: 'GBP',
     currencySymbol: '£',
-    endpoint: 'https://sellingpartnerapi-eu.amazon.com'
+    endpoint: 'https://sellingpartnerapi-eu.amazon.com',
   },
   {
     id: 'APJ6JRA9NG5V4',
@@ -82,7 +83,7 @@ const MARKETPLACES: MarketplaceOption[] = [
     region: 'EU',
     currency: 'EUR',
     currencySymbol: '€',
-    endpoint: 'https://sellingpartnerapi-eu.amazon.com'
+    endpoint: 'https://sellingpartnerapi-eu.amazon.com',
   },
 ];
 
@@ -92,7 +93,7 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
   const [selectedMarketplace, setSelectedMarketplace] = useState<MarketplaceOption | null>(null);
   const [currency, setCurrency] = useState<string>('');
   const [accountName, setAccountName] = useState('');
-  
+
   // Manual connection fields
   const [awsEnvironment, setAwsEnvironment] = useState('PRODUCTION');
   const [accountType, setAccountType] = useState('Seller');
@@ -105,9 +106,48 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
     setCurrency(marketplace.currency);
   };
 
-  const handleConnectToSellerCentral = () => {
-    // TODO: Implement OAuth flow
-    console.log('Connect to Seller Central');
+  const handleConnectToSellerCentral = async () => {
+    if (!selectedMarketplace) {
+      return;
+    }
+
+    try {
+      // Store current state in session storage for OAuth callback
+      const state = {
+        marketplace: selectedMarketplace,
+        accountName,
+        returnUrl: window.location.pathname,
+      };
+      sessionStorage.setItem('sp-api-oauth-state', JSON.stringify(state));
+
+      // Redirect to OAuth initiation endpoint for production
+      const params = new URLSearchParams({
+        marketplace: selectedMarketplace.code,
+        environment: 'PRODUCTION',
+      });
+
+      window.location.href = `/api/amazon/oauth/initiate?${params.toString()}`;
+    } catch (error) {
+      console.error('Error initiating OAuth:', error);
+      // TODO: Replace with proper error handling
+      // eslint-disable-next-line no-alert
+      alert('Failed to initiate authentication');
+    }
+  };
+
+  const handleSandboxAuth = async () => {
+    if (!selectedMarketplace) {
+      return;
+    }
+
+    // For sandbox, we use the pre-configured sandbox credentials directly
+    // No OAuth flow needed for sandbox environment
+    setAwsEnvironment('SANDBOX');
+    setLwaClientId(process.env.NEXT_PUBLIC_AMAZON_SP_API_LWA_APP_ID || '');
+    setLwaClientSecret(''); // Will be filled from env on backend
+    setRefreshToken('Atzr|IwEBIG-SandboxRefreshToken-ForTesting'); // Sandbox test token
+    setAccountName(`${selectedMarketplace.name} Sandbox`);
+    setStep('manual');
   };
 
   const handleManualSetup = () => {
@@ -115,7 +155,9 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
   };
 
   const handleSaveManualCredentials = async () => {
-    if (!selectedMarketplace) return;
+    if (!selectedMarketplace) {
+      return;
+    }
 
     try {
       const accountData = {
@@ -134,7 +176,7 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
           lwaClientSecret,
           refreshToken,
           endpoint: selectedMarketplace.endpoint,
-        }
+        },
       };
 
       const response = await fetch('/api/seller-accounts', {
@@ -153,10 +195,12 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
       const savedAccount = await response.json();
       onAccountAdded(savedAccount);
       onOpenChange(false);
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       resetForm();
     } catch (error) {
       console.error('Error saving account:', error);
       // TODO: Show error message to user
+      // eslint-disable-next-line no-alert
       alert(error instanceof Error ? error.message : 'Failed to save account. Please try again.');
     }
   };
@@ -184,20 +228,25 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
         {step === 'marketplace' && (
           <div className="space-y-6">
             <div>
-              <Label className="text-base font-semibold mb-4 block">
+              <Label className="mb-4 block text-base font-semibold">
                 {t('choose_marketplace')}
               </Label>
-              <RadioGroup value={selectedMarketplace?.id} onValueChange={(value) => {
-                const marketplace = MARKETPLACES.find(m => m.id === value);
-                if (marketplace) handleMarketplaceSelect(marketplace);
-              }}>
+              <RadioGroup
+                value={selectedMarketplace?.id}
+                onValueChange={(value) => {
+                  const marketplace = MARKETPLACES.find(m => m.id === value);
+                  if (marketplace) {
+                    handleMarketplaceSelect(marketplace);
+                  }
+                }}
+              >
                 <div className="grid grid-cols-2 gap-4">
-                  {MARKETPLACES.map((marketplace) => (
+                  {MARKETPLACES.map(marketplace => (
                     <Card key={marketplace.id} className="cursor-pointer">
                       <CardHeader className="p-4">
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value={marketplace.id} id={marketplace.id} />
-                          <Label htmlFor={marketplace.id} className="cursor-pointer flex-1">
+                          <Label htmlFor={marketplace.id} className="flex-1 cursor-pointer">
                             <CardTitle className="text-sm">{marketplace.code}</CardTitle>
                             <CardDescription>{marketplace.name}</CardDescription>
                           </Label>
@@ -211,7 +260,7 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
 
             {selectedMarketplace && (
               <div>
-                <Label htmlFor="currency" className="text-base font-semibold mb-2 block">
+                <Label htmlFor="currency" className="mb-2 block text-base font-semibold">
                   {t('choose_currency')}
                 </Label>
                 <Select value={currency} onValueChange={setCurrency}>
@@ -220,7 +269,9 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={selectedMarketplace.currency}>
-                      {selectedMarketplace.currencySymbol} {selectedMarketplace.currency}
+                      {selectedMarketplace.currencySymbol}
+                      {' '}
+                      {selectedMarketplace.currency}
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -228,12 +279,12 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
             )}
 
             <div className="flex justify-end">
-              <Button 
-                onClick={() => setStep('connection')} 
+              <Button
+                onClick={() => setStep('connection')}
                 disabled={!canProceedFromMarketplace}
               >
                 {t('next')}
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 size-4" />
               </Button>
             </div>
           </div>
@@ -242,12 +293,21 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
         {step === 'connection' && (
           <div className="space-y-6">
             <div className="space-y-4">
-              <Button 
+              <Button
                 onClick={handleConnectToSellerCentral}
                 className="w-full"
                 size="lg"
               >
                 {t('connect_seller_central')}
+              </Button>
+
+              <Button
+                onClick={handleSandboxAuth}
+                className="w-full"
+                size="lg"
+                variant="secondary"
+              >
+                {t('sandbox_auth')}
               </Button>
 
               <div className="relative">
@@ -261,7 +321,7 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
                 </div>
               </div>
 
-              <Button 
+              <Button
                 onClick={handleManualSetup}
                 variant="outline"
                 className="w-full"
@@ -272,11 +332,11 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
             </div>
 
             <div className="flex justify-between">
-              <Button 
-                onClick={() => setStep('marketplace')} 
+              <Button
+                onClick={() => setStep('marketplace')}
                 variant="ghost"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="mr-2 size-4" />
                 {t('back')}
               </Button>
             </div>
@@ -285,13 +345,20 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
 
         {step === 'manual' && (
           <div className="space-y-6">
+            {awsEnvironment === 'SANDBOX' && (
+              <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                <p className="text-sm text-yellow-800">
+                  {t('sandbox_notice', 'You are setting up a sandbox account. This will use test data and does not require a real seller account.')}
+                </p>
+              </div>
+            )}
             <div className="space-y-4">
               <div>
                 <Label htmlFor="accountName">{t('account_name')}</Label>
                 <Input
                   id="accountName"
                   value={accountName}
-                  onChange={(e) => setAccountName(e.target.value)}
+                  onChange={e => setAccountName(e.target.value)}
                   placeholder={selectedMarketplace?.name}
                 />
               </div>
@@ -337,7 +404,7 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
                   id="lwaClientId"
                   type="password"
                   value={lwaClientId}
-                  onChange={(e) => setLwaClientId(e.target.value)}
+                  onChange={e => setLwaClientId(e.target.value)}
                   placeholder="••••••••••"
                 />
               </div>
@@ -348,7 +415,7 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
                   id="lwaClientSecret"
                   type="password"
                   value={lwaClientSecret}
-                  onChange={(e) => setLwaClientSecret(e.target.value)}
+                  onChange={e => setLwaClientSecret(e.target.value)}
                   placeholder="••••••••••"
                 />
               </div>
@@ -359,21 +426,21 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
                   id="refreshToken"
                   type="password"
                   value={refreshToken}
-                  onChange={(e) => setRefreshToken(e.target.value)}
+                  onChange={e => setRefreshToken(e.target.value)}
                   placeholder="••••••••••"
                 />
               </div>
             </div>
 
             <div className="flex justify-between">
-              <Button 
-                onClick={() => setStep('connection')} 
+              <Button
+                onClick={() => setStep('connection')}
                 variant="ghost"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="mr-2 size-4" />
                 {t('back')}
               </Button>
-              <Button 
+              <Button
                 onClick={handleSaveManualCredentials}
                 disabled={!canSaveManualCredentials}
               >
@@ -386,3 +453,4 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
     </Dialog>
   );
 }
+

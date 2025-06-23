@@ -3,6 +3,7 @@ import '@/styles/global.css';
 import type { Metadata } from 'next';
 import { NextIntlClientProvider, useMessages } from 'next-intl';
 import { unstable_setRequestLocale } from 'next-intl/server';
+import { Toaster } from 'sonner';
 
 import { AllLocales } from '@/utils/AppConfig';
 
@@ -58,6 +59,7 @@ export default function RootLayout(props: {
           messages={messages}
         >
           {props.children}
+          <Toaster position="bottom-right" />
         </NextIntlClientProvider>
       </body>
     </html>
