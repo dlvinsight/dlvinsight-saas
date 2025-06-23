@@ -42,7 +42,7 @@ export class SPApiAuthService {
     try {
       await this.getAccessToken();
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

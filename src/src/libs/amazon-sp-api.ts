@@ -3,7 +3,7 @@ type TokenResponse = {
   token_type: string;
   expires_in: number;
   refresh_token: string;
-}
+};
 
 type MarketplaceParticipation = {
   marketplace: {
@@ -18,7 +18,7 @@ type MarketplaceParticipation = {
     isParticipating: boolean;
     hasSuspendedListings: boolean;
   };
-}
+};
 
 /**
  * Exchange a refresh token for an access token using Amazon's OAuth2 endpoint
@@ -75,7 +75,8 @@ export async function exchangeRefreshTokenForAccess(
 export async function testSpApiConnection(
   accessToken: string,
   endpoint: string,
-): Promise<{ success: boolean; marketplaces?: MarketplaceParticipation[]; error?: string }> {
+  expectedMarketplaceId?: string,
+): Promise<{ success: boolean; marketplaces?: MarketplaceParticipation[]; error?: string; marketplaceValid?: boolean }> {
   try {
     // Generate ISO date for x-amz-date header
     const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '').replace(/T/, '');
@@ -113,12 +114,18 @@ export async function testSpApiConnection(
 
     const data: { payload: MarketplaceParticipation[] } = await response.json();
 
+    // Check if the expected marketplace ID is in the list
+    let marketplaceValid = true;
+    if (expectedMarketplaceId) {
+      marketplaceValid = data.payload.some(mp => mp.marketplace.id === expectedMarketplaceId);
+    }
+
     return {
       success: true,
       marketplaces: data.payload,
+      marketplaceValid,
     };
   } catch (error) {
-    console.error('SP-API connection test error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Network error while testing connection',

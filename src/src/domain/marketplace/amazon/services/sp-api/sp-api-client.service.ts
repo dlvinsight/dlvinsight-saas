@@ -214,26 +214,22 @@ export class SPApiClientService {
 
       await this.getOrders(params);
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
 
   async getSandboxTestOrders(): Promise<Order[]> {
-    try {
-      const testMarketplaceIds = ['ATVPDKIKX0DER']; // US marketplace
+    const testMarketplaceIds = ['ATVPDKIKX0DER']; // US marketplace
 
-      // Use the special sandbox test case that returns mock order data
-      const params: OrdersApiParams = {
-        marketplace_ids: testMarketplaceIds,
-        created_after: 'TEST_CASE_200',
-        max_results_per_page: 100,
-      };
+    // Use the special sandbox test case that returns mock order data
+    const params: OrdersApiParams = {
+      marketplace_ids: testMarketplaceIds,
+      created_after: 'TEST_CASE_200',
+      max_results_per_page: 100,
+    };
 
-      const response = await this.getOrders(params);
-      return response.Orders;
-    } catch (error) {
-      throw error;
-    }
+    const response = await this.getOrders(params);
+    return response.Orders;
   }
 }

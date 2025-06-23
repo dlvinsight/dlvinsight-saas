@@ -272,10 +272,18 @@ export async function testSellerAccountConnection(accountId: string) {
       credentials.clientSecret,
     );
 
-    // Test the connection using the access token
-    const connectionTest = await testSpApiConnection(accessToken, account.endpoint);
+    // Test the connection using the access token and verify marketplace
+    const connectionTest = await testSpApiConnection(accessToken, account.endpoint, account.marketplaceId);
 
     if (connectionTest.success) {
+      // Check if the marketplace is valid
+      if (connectionTest.marketplaceValid === false) {
+        return {
+          success: false,
+          error: `The account does not have access to marketplace ${account.marketplaceId} (${account.marketplaceName}). Available marketplaces: ${connectionTest.marketplaces?.map(mp => mp.marketplace.id).join(', ')}`,
+        };
+      }
+
       // Update lastSyncAt on successful connection
       await db
         .update(sellerAccountSchema)
