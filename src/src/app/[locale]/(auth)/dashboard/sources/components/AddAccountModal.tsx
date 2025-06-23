@@ -348,7 +348,7 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
             {awsEnvironment === 'SANDBOX' && (
               <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
                 <p className="text-sm text-yellow-800">
-                  {t('sandbox_notice', 'You are setting up a sandbox account. This will use test data and does not require a real seller account.')}
+                  {t('sandbox_notice')}
                 </p>
               </div>
             )}
