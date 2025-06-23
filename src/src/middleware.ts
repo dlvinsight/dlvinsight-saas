@@ -27,14 +27,15 @@ export default function middleware(
 ) {
   const pathname = request.nextUrl.pathname;
 
-  // Check if it's a webhook endpoint or OAuth endpoint - handle these first without any auth
+  // Check if it's a webhook endpoint, OAuth endpoint, or health endpoint - handle these first without any auth
   if (
     pathname.startsWith('/api/webhooks/') || 
     pathname.includes('/api/webhooks/') ||
     pathname.startsWith('/api/amazon/oauth/') ||
-    pathname.includes('/api/amazon/oauth/')
+    pathname.includes('/api/amazon/oauth/') ||
+    pathname === '/api/health'
   ) {
-    // For webhooks and OAuth endpoints, only apply intl middleware, skip Clerk auth entirely
+    // For webhooks, OAuth, and health endpoints, only apply intl middleware, skip Clerk auth entirely
     return intlMiddleware(request);
   }
 
@@ -89,9 +90,10 @@ export const config = {
     // - monitoring (Sentry tunnel)
     // - api/webhooks paths
     // - api/amazon/oauth paths
-    '/((?!.+\\.[\\w]+$|_next|monitoring|api/webhooks|api/amazon/oauth).*)',
+    // - api/health path
+    '/((?!.+\\.[\\w]+$|_next|monitoring|api/webhooks|api/amazon/oauth|api/health).*)',
     '/',
-    // Match API routes but exclude webhooks and OAuth
-    '/(api/(?!webhooks|amazon/oauth)|trpc)(.*)',
+    // Match API routes but exclude webhooks, OAuth, and health
+    '/(api/(?!webhooks|amazon/oauth|health)|trpc)(.*)',
   ],
 };
