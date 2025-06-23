@@ -102,6 +102,7 @@
     "home": "Home",
     "sources": "Sources",
     "products": "Products",
+    "test_api": "API Health",
     "todos": "Todos",
     "members": "Members",
     "billing": "Billing",
