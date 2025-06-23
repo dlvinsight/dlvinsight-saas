@@ -143,15 +143,25 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
     // For sandbox, we use the pre-configured sandbox credentials directly
     // No OAuth flow needed for sandbox environment
     setAwsEnvironment('SANDBOX');
-    setLwaClientId(process.env.NEXT_PUBLIC_AMAZON_SP_API_LWA_APP_ID || '');
-    setLwaClientSecret(''); // Will be filled from env on backend
-    setRefreshToken('Atzr|IwEBIG-SandboxRefreshToken-ForTesting'); // Sandbox test token
+    setLwaClientId(process.env.NEXT_PUBLIC_AMAZON_SANDBOX_CLIENT_ID || '');
+    setLwaClientSecret(process.env.NEXT_PUBLIC_AMAZON_SANDBOX_CLIENT_SECRET || '');
+    setRefreshToken(process.env.NEXT_PUBLIC_AMAZON_SANDBOX_REFRESH_TOKEN || '');
     setAccountName(`${selectedMarketplace.name} Sandbox`);
     setStep('manual');
   };
 
   const handleManualSetup = () => {
     setStep('manual');
+  };
+
+  const resetForm = () => {
+    setStep('marketplace');
+    setSelectedMarketplace(null);
+    setCurrency('');
+    setAccountName('');
+    setLwaClientId('');
+    setLwaClientSecret('');
+    setRefreshToken('');
   };
 
   const handleSaveManualCredentials = async () => {
@@ -195,7 +205,6 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
       const savedAccount = await response.json();
       onAccountAdded(savedAccount);
       onOpenChange(false);
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       resetForm();
     } catch (error) {
       console.error('Error saving account:', error);
@@ -203,16 +212,6 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
       // eslint-disable-next-line no-alert
       alert(error instanceof Error ? error.message : 'Failed to save account. Please try again.');
     }
-  };
-
-  const resetForm = () => {
-    setStep('marketplace');
-    setSelectedMarketplace(null);
-    setCurrency('');
-    setAccountName('');
-    setLwaClientId('');
-    setLwaClientSecret('');
-    setRefreshToken('');
   };
 
   const canProceedFromMarketplace = selectedMarketplace !== null;
@@ -453,4 +452,3 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
     </Dialog>
   );
 }
-
