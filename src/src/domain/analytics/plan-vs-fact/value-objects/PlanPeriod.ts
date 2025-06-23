@@ -102,9 +102,10 @@ export class PlanPeriod {
         })}`;
       case 'MONTHLY':
         return this.startDate.toLocaleDateString('en-US', options);
-      case 'QUARTERLY':
+      case 'QUARTERLY': {
         const quarter = Math.floor(this.startDate.getMonth() / 3) + 1;
         return `Q${quarter} ${this.startDate.getFullYear()}`;
+      }
       case 'YEARLY':
         return this.startDate.getFullYear().toString();
     }

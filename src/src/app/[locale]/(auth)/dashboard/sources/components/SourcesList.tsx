@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/table';
 
 import {
-  createTestSellerAccount,
   fetchSellerAccounts,
   removeSellerAccount,
   testSellerAccountConnection,
@@ -65,18 +64,6 @@ export function SourcesList() {
     setIsAddModalOpen(true);
   };
 
-  const handleTestDatabase = async () => {
-    const result = await createTestSellerAccount();
-
-    if (result.success) {
-      // eslint-disable-next-line no-alert
-      alert(`Success! ${result.message}`);
-    } else {
-      // eslint-disable-next-line no-alert
-      alert(`Error: ${result.error}`);
-    }
-  };
-
   const handleTestConnection = async (accountId: string) => {
     const result = await testSellerAccountConnection(accountId);
 
@@ -90,7 +77,7 @@ export function SourcesList() {
   };
 
   const handleRemoveAccount = async (accountId: string) => {
-    // eslint-disable-next-line no-confirm
+    // eslint-disable-next-line no-alert
     if (confirm('Are you sure you want to remove this account?')) {
       const result = await removeSellerAccount(accountId);
 
@@ -132,15 +119,10 @@ export function SourcesList() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{t('accounts_title')}</h2>
-        <div className="flex gap-2">
-          <Button onClick={handleTestDatabase} size="sm" variant="outline">
-            Test Database
-          </Button>
-          <Button onClick={handleAddAccount} size="sm">
-            <Plus className="mr-2 size-4" />
-            {t('add_account')}
-          </Button>
-        </div>
+        <Button onClick={handleAddAccount} size="sm">
+          <Plus className="mr-2 size-4" />
+          {t('add_account')}
+        </Button>
       </div>
 
       {isLoading

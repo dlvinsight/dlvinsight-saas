@@ -2,7 +2,7 @@ import path from 'node:path';
 
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { Client } from 'pg';
+import { Pool } from 'pg';
 
 import * as schema from '@/models/Schema';
 
@@ -18,6 +18,7 @@ const DATABASE_URL = Env.DATABASE_URL || (
 );
 
 let db: NodePgDatabase<typeof schema>;
+let pool: Pool | null = null;
 
 // During build phase, create a placeholder DB instance
 if (process.env.NEXT_PHASE === 'phase-production-build') {
@@ -35,14 +36,19 @@ if (process.env.NEXT_PHASE === 'phase-production-build') {
   let connectionError: any;
 
   try {
-    const client = new Client({
+    pool = new Pool({
       connectionString: DATABASE_URL,
+      max: 20, // Maximum number of clients in the pool
+      idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
+      connectionTimeoutMillis: 2000, // How long to wait when connecting a new client
     });
 
-    await client.connect();
-    console.log('Database connected successfully');
+    // Test the connection
+    const client = await pool.connect();
+    client.release();
+    console.log('Database pool created successfully');
 
-    db = drizzle(client, { schema });
+    db = drizzle(pool, { schema });
 
     // Skip migrations in development if SKIP_DB_MIGRATIONS is set
     if (process.env.SKIP_DB_MIGRATIONS !== 'true') {
@@ -65,14 +71,19 @@ if (process.env.NEXT_PHASE === 'phase-production-build') {
 
       try {
         const fallbackUrl = 'postgresql://postgres:yvYWVYXsrUTZyuKZn21khcKYG+8tkA18+mGCkFYuL2I=@35.241.144.115:5432/dlvinsight_prod';
-        const fallbackClient = new Client({
+        pool = new Pool({
           connectionString: fallbackUrl,
+          max: 20,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 2000,
         });
 
-        await fallbackClient.connect();
-        console.log('Fallback database connection successful');
+        // Test the connection
+        const client = await pool.connect();
+        client.release();
+        console.log('Fallback database pool created successfully');
 
-        db = drizzle(fallbackClient, { schema });
+        db = drizzle(pool, { schema });
 
         // Clear the error since we connected successfully
         connectionError = null;
@@ -88,5 +99,24 @@ if (process.env.NEXT_PHASE === 'phase-production-build') {
     }
   }
 }
+
+// Cleanup function to close all connections
+export async function closeDatabase() {
+  if (pool) {
+    await pool.end();
+    console.log('Database pool closed');
+  }
+}
+
+// Handle process termination
+process.on('SIGINT', async () => {
+  await closeDatabase();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await closeDatabase();
+  process.exit(0);
+});
 
 export { db };

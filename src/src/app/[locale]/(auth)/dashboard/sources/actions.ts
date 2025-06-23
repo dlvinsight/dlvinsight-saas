@@ -8,61 +8,6 @@ import { db } from '@/libs/DB';
 import { decryptSpApiCredentials, encryptSpApiCredentials } from '@/libs/encryption';
 import { sellerAccountSchema } from '@/models/Schema';
 
-export async function createTestSellerAccount() {
-  try {
-    const { user, organization } = await getAuthContext();
-
-    if (!user || !organization) {
-      throw new Error('User or organization not found');
-    }
-
-    const timestamp = new Date().toISOString();
-    const testEntry = {
-      organizationId: organization.id,
-      userId: user.id,
-      accountName: `Test Account ${timestamp}`,
-      marketplaceId: 'ATVPDKIKX0DER',
-      marketplaceCode: 'US',
-      marketplaceName: 'Amazon.com',
-      region: 'NA',
-      currency: 'USD',
-      currencySymbol: '$',
-      endpoint: 'https://sellingpartnerapi-na.amazon.com',
-      sellerId: `TEST-SELLER-${Date.now()}`,
-      awsEnvironment: 'SANDBOX',
-      accountType: 'Seller',
-      isActive: 1,
-    };
-
-    const result = await db
-      .insert(sellerAccountSchema)
-      .values(testEntry)
-      .returning();
-
-    const newAccount = result[0];
-    if (!newAccount) {
-      throw new Error('Failed to create account');
-    }
-
-    return {
-      success: true,
-      message: `Test entry created at ${timestamp}`,
-      account: {
-        id: newAccount.id,
-        name: newAccount.accountName,
-        marketplace: newAccount.marketplaceName,
-        marketplaceCode: newAccount.marketplaceCode,
-        createdAt: newAccount.createdAt,
-      },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to create test entry',
-    };
-  }
-}
-
 export async function saveSellerAccount(accountData: {
   name: string;
   marketplace: string;
@@ -270,12 +215,7 @@ export async function testSellerAccountConnection(accountId: string) {
       ? account.endpoint.replace('https://sellingpartnerapi', 'https://sandbox.sellingpartnerapi')
       : account.endpoint;
 
-    console.log('Testing connection for account:', {
-      accountName: account.accountName,
-      marketplaceId: account.marketplaceId,
-      endpoint,
-      awsEnvironment: account.awsEnvironment,
-    });
+    // Testing connection for account with endpoint and environment
 
     // Exchange refresh token for access token
     const { accessToken } = await exchangeRefreshTokenForAccess(
@@ -376,12 +316,12 @@ export async function removeSellerAccount(accountId: string) {
     }
 
     // Delete the account
-    const result = await db
+    await db
       .delete(sellerAccountSchema)
       .where(eq(sellerAccountSchema.id, accountId))
       .returning();
 
-    console.log('Deleted account:', result);
+    // Account deleted successfully
 
     return {
       success: true,
