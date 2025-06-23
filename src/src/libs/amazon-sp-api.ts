@@ -95,9 +95,19 @@ export async function testSpApiConnection(
       console.error('SP-API test failed:', response.status, errorText);
 
       if (response.status === 403) {
+        // Parse error details
+        let errorDetails = 'Access denied - check if the app has proper permissions';
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.errors && errorData.errors[0]) {
+            errorDetails = errorData.errors[0].message || errorDetails;
+          }
+        } catch {
+          // Keep default error message
+        }
         return {
           success: false,
-          error: 'Access denied - check if the app has proper permissions',
+          error: errorDetails,
         };
       } else if (response.status === 401) {
         return {

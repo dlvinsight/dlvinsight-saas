@@ -242,7 +242,7 @@ export async function testSellerAccountConnection(accountId: string) {
     }
 
     // Get encryption password from environment variable
-    const encryptionPassword = process.env.ENCRYPTION_PASSWORD;
+    const encryptionPassword = process.env.ENCRYPTION_PASSWORD || 'dev-encryption-password';
     if (!encryptionPassword) {
       return {
         success: false,
@@ -264,6 +264,13 @@ export async function testSellerAccountConnection(accountId: string) {
       lwaClientSecret: account.lwaClientSecret,
       refreshToken: account.refreshToken,
     }, encryptionPassword);
+
+    console.log('Testing connection for account:', {
+      accountName: account.accountName,
+      marketplaceId: account.marketplaceId,
+      endpoint: account.endpoint,
+      awsEnvironment: account.awsEnvironment,
+    });
 
     // Exchange refresh token for access token
     const { accessToken } = await exchangeRefreshTokenForAccess(
