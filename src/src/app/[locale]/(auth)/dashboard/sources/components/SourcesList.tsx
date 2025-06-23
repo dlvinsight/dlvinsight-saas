@@ -1,8 +1,9 @@
 'use client';
 
+import { useOrganization } from '@clerk/nextjs';
 import { Plus, Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import { createTestSellerAccount, fetchSellerAccounts } from '../actions';
 import { AddAccountModal } from './AddAccountModal';
 import { OAuthCallbackHandler } from './OAuthCallbackHandler';
 
@@ -30,11 +32,38 @@ type SellerAccount = {
 
 export function SourcesList() {
   const t = useTranslations('Sources');
+  const { organization } = useOrganization();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [accounts, setAccounts] = useState<SellerAccount[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadAccounts = async () => {
+      setIsLoading(true);
+      const result = await fetchSellerAccounts();
+      if (result.success) {
+        setAccounts(result.accounts);
+      }
+      setIsLoading(false);
+    };
+    
+    loadAccounts();
+  }, [organization?.id]); // Refetch when organization changes
 
   const handleAddAccount = () => {
     setIsAddModalOpen(true);
+  };
+
+  const handleTestDatabase = async () => {
+    const result = await createTestSellerAccount();
+    
+    if (result.success) {
+      // eslint-disable-next-line no-alert
+      alert(`Success! ${result.message}`);
+    } else {
+      // eslint-disable-next-line no-alert
+      alert(`Error: ${result.error}`);
+    }
   };
 
   const handleAccountSettings = (accountId: string) => {
@@ -69,13 +98,24 @@ export function SourcesList() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{t('accounts_title')}</h2>
-        <Button onClick={handleAddAccount} size="sm">
-          <Plus className="mr-2 size-4" />
-          {t('add_account')}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleTestDatabase} size="sm" variant="outline">
+            Test Database
+          </Button>
+          <Button onClick={handleAddAccount} size="sm">
+            <Plus className="mr-2 size-4" />
+            {t('add_account')}
+          </Button>
+        </div>
       </div>
 
-      {accounts.length === 0
+      {isLoading
+        ? (
+            <div className="rounded-lg bg-muted/50 py-12 text-center">
+              <p className="text-muted-foreground">Loading accounts...</p>
+            </div>
+          )
+        : accounts.length === 0
         ? (
             <div className="rounded-lg bg-muted/50 py-12 text-center">
               <p className="mb-4 text-muted-foreground">{t('no_accounts')}</p>
@@ -148,4 +188,3 @@ export function SourcesList() {
     </div>
   );
 }
-

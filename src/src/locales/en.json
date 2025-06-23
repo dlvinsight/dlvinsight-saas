@@ -205,6 +205,7 @@
       "next": "Next",
       "back": "Back",
       "connect_seller_central": "Connect to Seller Central",
+      "sandbox_auth": "Use Sandbox Account",
       "or": "or",
       "manual_setup": "Manual Source Settings",
       "account_name": "Source name",
@@ -214,7 +215,8 @@
       "lwa_client_id": "LWA Client Id",
       "lwa_client_secret": "LWA Client Secret",
       "refresh_token": "Refresh Token",
-      "save_credentials": "Save Credentials"
+      "save_credentials": "Save Credentials",
+      "sandbox_notice": "This is a sandbox account for testing purposes. Data will be simulated and not real."
     }
   }
 }

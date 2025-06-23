@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+import { saveSellerAccount } from '../actions';
+
 type AddAccountModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -189,26 +191,18 @@ export function AddAccountModal({ open, onOpenChange, onAccountAdded }: AddAccou
         },
       };
 
-      const response = await fetch('/api/seller-accounts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(accountData),
-      });
+      const result = await saveSellerAccount(accountData);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save account');
+      if (result.success && result.account) {
+        onAccountAdded(result.account);
+        onOpenChange(false);
+        resetForm();
+        // eslint-disable-next-line no-alert
+        alert('Account saved successfully!');
+      } else {
+        throw new Error(result.error || 'Failed to save account');
       }
-
-      const savedAccount = await response.json();
-      onAccountAdded(savedAccount);
-      onOpenChange(false);
-      resetForm();
     } catch (error) {
-      console.error('Error saving account:', error);
-      // TODO: Show error message to user
       // eslint-disable-next-line no-alert
       alert(error instanceof Error ? error.message : 'Failed to save account. Please try again.');
     }

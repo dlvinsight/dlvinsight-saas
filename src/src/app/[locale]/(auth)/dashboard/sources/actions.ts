@@ -1,0 +1,215 @@
+'use server';
+
+import { eq } from 'drizzle-orm';
+
+import { getAuthContext } from '@/libs/auth-helpers';
+import { db } from '@/libs/DB';
+import { encryptSpApiCredentials } from '@/libs/encryption';
+import { sellerAccountSchema } from '@/models/Schema';
+
+export async function createTestSellerAccount() {
+  try {
+    const { user, organization } = await getAuthContext();
+    
+    if (!user || !organization) {
+      throw new Error('User or organization not found');
+    }
+
+    const timestamp = new Date().toISOString();
+    const testEntry = {
+      organizationId: organization.id,
+      userId: user.id,
+      accountName: `Test Account ${timestamp}`,
+      marketplaceId: 'ATVPDKIKX0DER',
+      marketplaceCode: 'US',
+      marketplaceName: 'Amazon.com',
+      region: 'NA',
+      currency: 'USD',
+      currencySymbol: '$',
+      endpoint: 'https://sellingpartnerapi-na.amazon.com',
+      sellerId: `TEST-SELLER-${Date.now()}`,
+      awsEnvironment: 'SANDBOX',
+      accountType: 'Seller',
+      isActive: 1,
+    };
+
+    const result = await db
+      .insert(sellerAccountSchema)
+      .values(testEntry)
+      .returning();
+
+    const newAccount = result[0];
+    if (!newAccount) {
+      throw new Error('Failed to create account');
+    }
+
+    return {
+      success: true,
+      message: `Test entry created at ${timestamp}`,
+      account: {
+        id: newAccount.id,
+        name: newAccount.accountName,
+        marketplace: newAccount.marketplaceName,
+        marketplaceCode: newAccount.marketplaceCode,
+        createdAt: newAccount.createdAt,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to create test entry',
+    };
+  }
+}
+
+export async function saveSellerAccount(accountData: {
+  name: string;
+  marketplace: string;
+  marketplaceCode: string;
+  marketplaceId: string;
+  apiType: string;
+  status: string;
+  currency: string;
+  currencySymbol: string;
+  credentials: {
+    awsEnvironment: 'PRODUCTION' | 'SANDBOX';
+    accountType: 'Seller' | 'Vendor';
+    lwaClientId: string;
+    lwaClientSecret: string;
+    refreshToken: string;
+    endpoint: string;
+  };
+}) {
+  try {
+    const { user, organization } = await getAuthContext();
+    
+    if (!user || !organization) {
+      return {
+        success: false,
+        error: 'User or organization not found',
+      };
+    }
+
+    // Get encryption password from environment variable
+    const encryptionPassword = process.env.ENCRYPTION_PASSWORD || 'dev-encryption-password';
+
+    // Encrypt the sensitive credentials
+    const encryptedCredentials = encryptSpApiCredentials({
+      clientId: accountData.credentials.lwaClientId,
+      clientSecret: accountData.credentials.lwaClientSecret,
+      refreshToken: accountData.credentials.refreshToken,
+    }, encryptionPassword);
+
+    // Extract marketplace data
+    const marketplaceData = {
+      region: accountData.marketplaceCode === 'US'
+        ? 'NA'
+        : ['DE', 'ES', 'FR', 'UK', 'IT'].includes(accountData.marketplaceCode) ? 'EU' : 'OTHER',
+    };
+
+    // Create the seller account
+    const result = await db.insert(sellerAccountSchema).values({
+      organizationId: organization.id,
+      userId: user.id,
+      accountName: accountData.name,
+      marketplaceId: accountData.marketplaceId,
+      marketplaceCode: accountData.marketplaceCode,
+      marketplaceName: accountData.marketplace,
+      region: marketplaceData.region,
+      currency: accountData.currency,
+      currencySymbol: accountData.currencySymbol,
+      endpoint: accountData.credentials.endpoint,
+      sellerId: `SELLER_${Date.now()}`, // Temporary - will be fetched from Amazon API
+      awsEnvironment: accountData.credentials.awsEnvironment,
+      accountType: accountData.credentials.accountType,
+      lwaClientId: encryptedCredentials.lwaClientId,
+      lwaClientSecret: encryptedCredentials.lwaClientSecret,
+      refreshToken: encryptedCredentials.refreshToken,
+      isActive: 1,
+    }).returning();
+
+    const newAccount = result[0];
+    if (!newAccount) {
+      return {
+        success: false,
+        error: 'Failed to create account',
+      };
+    }
+
+    // Return the created account (excluding sensitive data)
+    return {
+      success: true,
+      account: {
+        id: newAccount.id,
+        name: newAccount.accountName,
+        marketplace: newAccount.marketplaceName,
+        marketplaceCode: newAccount.marketplaceCode,
+        marketplaceId: newAccount.marketplaceId,
+        status: 'active' as const,
+        apiType: 'sp-api' as const,
+        lastSync: newAccount.lastSyncAt,
+        createdAt: newAccount.createdAt,
+      },
+    };
+  } catch (error) {
+    console.error('Error creating seller account:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to save seller account',
+    };
+  }
+}
+
+export async function fetchSellerAccounts() {
+  try {
+    const { organization } = await getAuthContext();
+    
+    if (!organization) {
+      return {
+        success: false,
+        error: 'Organization not found',
+        accounts: [],
+      };
+    }
+
+    // Fetch all seller accounts for the organization
+    const accounts = await db
+      .select({
+        id: sellerAccountSchema.id,
+        name: sellerAccountSchema.accountName,
+        marketplace: sellerAccountSchema.marketplaceName,
+        marketplaceCode: sellerAccountSchema.marketplaceCode,
+        marketplaceId: sellerAccountSchema.marketplaceId,
+        status: sellerAccountSchema.isActive,
+        lastSync: sellerAccountSchema.lastSyncAt,
+        createdAt: sellerAccountSchema.createdAt,
+      })
+      .from(sellerAccountSchema)
+      .where(eq(sellerAccountSchema.organizationId, organization.id));
+
+    // Transform the accounts to match the expected format
+    const transformedAccounts = accounts.map(account => ({
+      id: account.id,
+      name: account.name,
+      marketplace: account.marketplace,
+      marketplaceCode: account.marketplaceCode,
+      marketplaceId: account.marketplaceId,
+      apiType: 'sp-api' as const,
+      status: account.status === 1 ? 'active' as const : 'inactive' as const,
+      lastSync: account.lastSync,
+      createdAt: account.createdAt,
+    }));
+
+    return {
+      success: true,
+      accounts: transformedAccounts,
+    };
+  } catch (error) {
+    console.error('Error fetching seller accounts:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch seller accounts',
+      accounts: [],
+    };
+  }
+}
