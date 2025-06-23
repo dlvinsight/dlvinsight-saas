@@ -131,7 +131,9 @@ export function ProductsList() {
               {accounts.map(account => (
                 <SelectItem key={account.id} value={account.id}>
                   {account.name}
-                  {' - '}
+                  {' '}
+                  -
+                  {' '}
                   {account.marketplace}
                   {' ('}
                   {account.marketplaceCode}
@@ -145,18 +147,20 @@ export function ProductsList() {
           onClick={handleFetchProducts}
           disabled={!selectedAccountId || isLoadingProducts}
         >
-          <RefreshCw className={`mr-2 size-4 ${isLoadingProducts ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`mr-2 size-4${isLoadingProducts ? ' animate-spin' : ''}`} />
           {t('fetch_products')}
         </Button>
       </div>
 
-      {products.length === 0 ? (
+      {products.length === 0
+        ? (
         <div className="rounded-lg border bg-muted/30 py-16 text-center">
           <Package className="mx-auto mb-4 size-16 text-muted-foreground" />
           <h3 className="mb-2 text-lg font-semibold">{t('no_products')}</h3>
           <p className="text-muted-foreground">{t('no_products_description')}</p>
         </div>
-      ) : (
+          )
+        : (
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -180,18 +184,18 @@ export function ProductsList() {
                   <TableCell className="text-right">
                     {product.price !== null
                       ? (
-                        `${product.currency} ${product.price.toFixed(2)}`
-                      )
+                          `${product.currency} ${product.price.toFixed(2)}`
+                        )
                       : (
-                        '-'
-                      )}
+                          '-'
+                        )}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
-      )}
+          )}
     </div>
   );
 }
