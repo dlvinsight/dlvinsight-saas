@@ -137,7 +137,7 @@ export function ProductsList() {
                   {account.marketplace}
                   {' ('}
                   {account.marketplaceCode}
-                  {')'}
+                  )
                 </SelectItem>
               ))}
             </SelectContent>
@@ -154,47 +154,47 @@ export function ProductsList() {
 
       {products.length === 0
         ? (
-        <div className="rounded-lg border bg-muted/30 py-16 text-center">
-          <Package className="mx-auto mb-4 size-16 text-muted-foreground" />
-          <h3 className="mb-2 text-lg font-semibold">{t('no_products')}</h3>
-          <p className="text-muted-foreground">{t('no_products_description')}</p>
-        </div>
+            <div className="rounded-lg border bg-muted/30 py-16 text-center">
+              <Package className="mx-auto mb-4 size-16 text-muted-foreground" />
+              <h3 className="mb-2 text-lg font-semibold">{t('no_products')}</h3>
+              <p className="text-muted-foreground">{t('no_products_description')}</p>
+            </div>
           )
         : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('table.sku')}</TableHead>
-                <TableHead>{t('table.asin')}</TableHead>
-                <TableHead>{t('table.product_name')}</TableHead>
-                <TableHead>{t('table.brand')}</TableHead>
-                <TableHead>{t('table.status')}</TableHead>
-                <TableHead className="text-right">{t('table.price')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map(product => (
-                <TableRow key={product.sku}>
-                  <TableCell className="font-medium">{product.sku}</TableCell>
-                  <TableCell>{product.asin}</TableCell>
-                  <TableCell>{product.productName || '-'}</TableCell>
-                  <TableCell>{product.brand || '-'}</TableCell>
-                  <TableCell>{product.status}</TableCell>
-                  <TableCell className="text-right">
-                    {product.price !== null
-                      ? (
-                          `${product.currency} ${product.price.toFixed(2)}`
-                        )
-                      : (
-                          '-'
-                        )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('table.sku')}</TableHead>
+                    <TableHead>{t('table.asin')}</TableHead>
+                    <TableHead>{t('table.product_name')}</TableHead>
+                    <TableHead>{t('table.brand')}</TableHead>
+                    <TableHead>{t('table.status')}</TableHead>
+                    <TableHead className="text-right">{t('table.price')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {products.map(product => (
+                    <TableRow key={product.sku}>
+                      <TableCell className="font-medium">{product.sku}</TableCell>
+                      <TableCell>{product.asin}</TableCell>
+                      <TableCell>{product.productName || '-'}</TableCell>
+                      <TableCell>{product.brand || '-'}</TableCell>
+                      <TableCell>{product.status}</TableCell>
+                      <TableCell className="text-right">
+                        {product.price !== null
+                          ? (
+                              `${product.currency} ${product.price.toFixed(2)}`
+                            )
+                          : (
+                              '-'
+                            )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
     </div>
   );

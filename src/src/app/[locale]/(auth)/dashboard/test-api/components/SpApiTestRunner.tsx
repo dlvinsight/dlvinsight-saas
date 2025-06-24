@@ -74,7 +74,9 @@ export function SpApiTestRunner() {
   }, []);
 
   const runTest = async () => {
-    if (!selectedAccountId) return;
+    if (!selectedAccountId) {
+      return;
+    }
 
     setIsRunningTest(true);
     setError(null);
@@ -82,7 +84,7 @@ export function SpApiTestRunner() {
 
     try {
       const result = await runSpApiHealthCheck(selectedAccountId);
-      
+
       if (result.success && result.testResults) {
         // TypeScript workaround - we know the structure has summary
         setTestResults(result.testResults as TestResults);
@@ -104,7 +106,9 @@ export function SpApiTestRunner() {
   };
 
   const formatDuration = (ms?: number) => {
-    if (!ms) return '';
+    if (!ms) {
+      return '';
+    }
     return `${ms}ms`;
   };
 
@@ -150,7 +154,14 @@ export function SpApiTestRunner() {
               <SelectContent>
                 {accounts.map(account => (
                   <SelectItem key={account.id} value={account.id}>
-                    {account.name} - {account.marketplace} ({account.marketplaceCode})
+                    {account.name}
+                    {' '}
+                    -
+                    {account.marketplace}
+                    {' '}
+                    (
+                    {account.marketplaceCode}
+                    )
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -159,14 +170,16 @@ export function SpApiTestRunner() {
               onClick={runTest}
               disabled={!selectedAccountId || isRunningTest}
             >
-              {isRunningTest ? (
-                <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                  Running Test...
-                </>
-              ) : (
-                'Run Health Check'
-              )}
+              {isRunningTest
+                ? (
+                    <>
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                      Running Test...
+                    </>
+                  )
+                : (
+                    'Run Health Check'
+                  )}
             </Button>
           </div>
         </CardContent>
@@ -190,7 +203,13 @@ export function SpApiTestRunner() {
             <CardHeader>
               <CardTitle>Test Summary</CardTitle>
               <CardDescription>
-                Environment: {testResults.environment} | Tested at: {new Date(testResults.timestamp).toLocaleString()}
+                Environment:
+                {' '}
+                {testResults.environment}
+                {' '}
+                | Tested at:
+                {' '}
+                {new Date(testResults.timestamp).toLocaleString()}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -212,21 +231,26 @@ export function SpApiTestRunner() {
                   <div className="text-sm text-muted-foreground">Failed</div>
                 </div>
                 <div className="rounded-lg bg-muted p-4">
-                  <div className="text-2xl font-bold">{testResults.summary.totalDuration}ms</div>
+                  <div className="text-2xl font-bold">
+                    {testResults.summary.totalDuration}
+                    ms
+                  </div>
                   <div className="text-sm text-muted-foreground">Total Duration</div>
                 </div>
               </div>
-              
+
               <div className="mt-4">
                 <Card className={testResults.summary.overallStatus === 'healthy' ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950' : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950'}>
                   <CardContent className="flex items-center gap-4 pt-6">
                     <AlertCircle className={`size-5 ${testResults.summary.overallStatus === 'healthy' ? 'text-green-500' : 'text-red-500'}`} />
                     <div>
                       <h3 className="font-semibold">
-                        Overall Status: {testResults.summary.overallStatus === 'healthy' ? 'Healthy' : 'Issues Detected'}
+                        Overall Status:
+                        {' '}
+                        {testResults.summary.overallStatus === 'healthy' ? 'Healthy' : 'Issues Detected'}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {testResults.summary.overallStatus === 'healthy' 
+                        {testResults.summary.overallStatus === 'healthy'
                           ? 'All API endpoints are responding correctly.'
                           : 'Some API endpoints encountered issues. Check the detailed results below.'}
                       </p>

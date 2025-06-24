@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import { SpApiTestRunner } from './components/SpApiTestRunner';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -9,7 +10,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TestApiPage() {
-
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">

@@ -36,7 +36,7 @@ export async function testSpApiProductFetch(credentials: {
     // Step 1: Test token exchange
     const tokenStartTime = Date.now();
     let accessToken: string;
-    
+
     try {
       const tokenResult = await exchangeRefreshTokenForAccess(
         credentials.refreshToken,
@@ -45,7 +45,7 @@ export async function testSpApiProductFetch(credentials: {
       );
       accessToken = tokenResult.accessToken;
       const tokenDuration = Date.now() - tokenStartTime;
-      
+
       addStep(
         'Token Exchange',
         'success',
@@ -122,7 +122,7 @@ export async function testSpApiProductFetch(credentials: {
       // Use a known test ASIN for sandbox or a safe ASIN for production
       const testAsin = credentials.awsEnvironment === 'SANDBOX' ? 'B07DFPLXY3' : 'B07DFPLXY3';
       const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '').replace(/T/, '');
-      
+
       const response = await fetch(
         `${credentials.endpoint}/catalog/2022-04-01/items/${testAsin}?marketplaceIds=${credentials.marketplaceId}&includedData=summaries`,
         {
@@ -140,7 +140,7 @@ export async function testSpApiProductFetch(credentials: {
       if (response.ok) {
         const data = await response.json();
         const summary = data.summaries?.find((s: any) => s.marketplaceId === credentials.marketplaceId);
-        
+
         addStep(
           'Catalog API Test',
           'success',
@@ -202,7 +202,6 @@ export async function testSpApiProductFetch(credentials: {
         'Could not check rate limits',
       );
     }
-
   } catch (error) {
     addStep(
       'General Error',
