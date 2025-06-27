@@ -20,14 +20,14 @@ DLV Insight™ (trademark pending) is an AI-powered analytics and planning platf
 I bring a unique combination of academic rigor and operational excellence to DLV Insight. With a Ph.D. in Computer Science specializing in Cybernetics, I apply systems thinking and mathematical precision to solve complex e-commerce challenges.
 
 **My E-commerce Journey**
-- **Current**: CEO of MSVenturesGroup, an 8-figure e-commerce operation (€10M+ annual revenue)
+- **Current**: CEO of an 8-figure e-commerce operation (€10M+ annual revenue)
 - **Track Record**: Scaled the business by 25% YoY through systematic operational improvements
 - **Global Experience**: 8+ years managing operations across 16 Amazon marketplaces in 15 countries
 - **Cumulative Impact**: €29M+ in total sales managed across various ventures
 
 **Why I'm Building DLV Insight**
 
-Having scaled my own e-commerce operations to 8 figures, I experienced firsthand the gap between having data and making strategic decisions. Every day, I faced the challenge of transforming endless reports into actionable strategies while managing €10M+ in annual revenue.
+Having scaled e-commerce operations to 8 figures, I experienced firsthand the gap between having data and making strategic decisions. Every day, I faced the challenge of transforming endless reports into actionable strategies while managing €10M+ in annual revenue.
 
 DLV Insight is built from the trenches - it's the tool I wished existed when trying to answer critical questions like:
 - "What's my true profit after all costs?"

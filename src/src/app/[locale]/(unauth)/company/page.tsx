@@ -40,7 +40,7 @@ const CompanyPage = (props: { params: { locale: string } }) => {
         <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
           <div className="max-w-3xl">
             <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl">
-              From Prague to Global E-commerce Excellence
+              From Prague to Global <span className="whitespace-nowrap">E-Commerce</span> Excellence
             </h1>
             <p className="mb-8 text-xl leading-relaxed text-gray-200">
               Building the analytics platform that transforms Amazon sellers from data collectors to strategic decision makers.
@@ -160,7 +160,7 @@ const CompanyPage = (props: { params: { locale: string } }) => {
                 <p className="mb-4 text-xl text-gray-600">CEO & Founder, DLV Insight</p>
                 
                 <blockquote className="mb-6 border-l-4 border-blue-600 pl-4 text-lg italic text-gray-700">
-                  "After scaling my e-commerce business to €10M+ annually, I learned that success isn't about 
+                  "After scaling an e-commerce business to €10M+ annually, I learned that success isn't about 
                   having more data—it's about asking the right questions and getting actionable answers."
                 </blockquote>
                 
@@ -171,7 +171,7 @@ const CompanyPage = (props: { params: { locale: string } }) => {
                     system that requires mathematical precision and strategic thinking.
                   </p>
                   <p>
-                    As CEO of MSVenturesGroup, I've navigated the challenges of scaling across 16 Amazon marketplaces, 
+                    As CEO of an 8-figure e-commerce company, I've navigated the challenges of scaling across 16 Amazon marketplaces, 
                     achieving consistent 25% YoY growth. But the tools available always fell short—they showed what 
                     happened, never what should happen next.
                   </p>
