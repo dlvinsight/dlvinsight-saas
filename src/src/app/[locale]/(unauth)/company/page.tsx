@@ -27,17 +27,15 @@ const CompanyPage = (props: { params: { locale: string } }) => {
       {/* Hero Section with Prague Background */}
       <section className="relative bg-gray-900 text-white">
         <div className="absolute inset-0 overflow-hidden">
-          {/* Prague background image placeholder */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-gray-900 opacity-90" />
-          {/* Add this when you have the image:
+          {/* Prague background image */}
           <Image
-            src="/assets/images/prague-hero.jpg"
+            src="/assets/images/prague.jpg"
             alt="Prague cityscape"
             fill
             className="object-cover"
             priority
           />
-          */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 to-gray-900/80" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
           <div className="max-w-3xl">
@@ -124,19 +122,14 @@ const CompanyPage = (props: { params: { locale: string } }) => {
             <h2 className="mb-8 text-3xl font-bold text-gray-900">Meet the Founder</h2>
             <div className="lg:grid lg:grid-cols-3 lg:gap-8">
               <div className="mb-8 lg:mb-0">
-                {/* Founder photo placeholder */}
+                {/* Founder photo */}
                 <div className="relative mx-auto h-64 w-64 overflow-hidden rounded-lg bg-gray-200 lg:h-80 lg:w-full">
-                  <div className="flex h-full items-center justify-center text-gray-500">
-                    <p className="text-sm">Your Photo Here</p>
-                  </div>
-                  {/* Add this when you have the image:
                   <Image
-                    src="/assets/images/serhii-yaremenko.jpg"
+                    src="/assets/images/profile2.png"
                     alt="Serhii Yaremenko, Ph.D."
                     fill
                     className="object-cover"
                   />
-                  */}
                 </div>
                 <div className="mt-4 flex justify-center gap-4">
                   <a
