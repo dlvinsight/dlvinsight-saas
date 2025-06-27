@@ -39,3 +39,4 @@ npm run db:migrate       # Apply database changes
 - Architecture: [/docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 - Setup: [/docs/SETUP.md](./docs/SETUP.md)
 - Commands: [/docs/COMMANDS.md](./docs/COMMANDS.md)
+- SP-API Reports TODO: [/TODO-SP-API-REPORTS.md](./TODO-SP-API-REPORTS.md)
