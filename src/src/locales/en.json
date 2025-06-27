@@ -98,6 +98,10 @@
     "meta_title": "Sign up",
     "meta_description": "Effortlessly create an account through our intuitive sign-up process."
   },
+  "Company": {
+    "meta_title": "Company - DLV Insight",
+    "meta_description": "Learn about DLV Insight - AI-powered analytics and planning platform for advanced Amazon sellers. Founded by Serhii Yaremenko, Ph.D."
+  },
   "DashboardLayout": {
     "home": "Home",
     "sources": "Sources",

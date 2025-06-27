@@ -11,6 +11,7 @@ export type TestStep = {
   message: string;
   data?: any;
   duration?: number;
+  details?: any;
 };
 
 export type TestSummary = {

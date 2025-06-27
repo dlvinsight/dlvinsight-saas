@@ -21,7 +21,7 @@ export async function testCatalogApi(
 
     console.log('Catalog API Request:', {
       endpoint,
-      environment: credentials.awsEnvironment
+      environment: credentials.awsEnvironment,
     });
 
     const response = await fetch(endpoint, {
@@ -37,7 +37,7 @@ export async function testCatalogApi(
 
     if (response.ok) {
       const data = await response.json();
-      
+
       // Handle different response formats
       if (credentials.awsEnvironment === 'SANDBOX' && data.items) {
         // Sandbox search response
@@ -47,17 +47,19 @@ export async function testCatalogApi(
           message: `Found ${data.items.length} items in catalog`,
           data: {
             itemCount: data.items.length,
-            sampleItem: data.items[0] ? {
-              asin: data.items[0].asin,
-              itemName: data.items[0].attributes?.title?.[0]?.value || 'N/A',
-            } : null,
+            sampleItem: data.items[0]
+              ? {
+                  asin: data.items[0].asin,
+                  itemName: data.items[0].attributes?.title?.[0]?.value || 'N/A',
+                }
+              : null,
           },
           duration,
         };
       } else if (data.asin) {
         // Production/specific ASIN response
         const summary = data.summaries?.find((s: any) => s.marketplaceId === credentials.marketplaceId);
-        
+
         return {
           step: 'Catalog API Test',
           status: 'success',
@@ -81,21 +83,21 @@ export async function testCatalogApi(
       }
     } else {
       const errorText = await response.text();
-      
+
       // In sandbox, some errors are expected - mark as warning instead of error
       if (credentials.awsEnvironment === 'SANDBOX' && response.status === 400) {
         return {
           step: 'Catalog API Test',
           status: 'success',
           message: 'Catalog API connection verified (sandbox limitations apply)',
-          data: { 
+          data: {
             note: 'Sandbox environment has limited catalog data',
             status: response.status,
           },
           duration,
         };
       }
-      
+
       return {
         step: 'Catalog API Test',
         status: 'error',

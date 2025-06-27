@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeAll } from 'vitest';
-import { SpApiTestRunner } from '@/src/app/[locale]/(auth)/dashboard/test-api/tests';
-import type { SpApiCredentials } from '@/src/app/[locale]/(auth)/dashboard/test-api/types';
-
 // Load environment variables
 import 'dotenv/config';
+
+import { beforeAll, describe, expect, it } from 'vitest';
+
+import { SpApiTestRunner } from '@/src/app/[locale]/(auth)/dashboard/test-api/tests';
+import type { SpApiCredentials } from '@/src/app/[locale]/(auth)/dashboard/test-api/types';
 
 describe('SP-API Connection Test', () => {
   let credentials: SpApiCredentials;
@@ -30,12 +31,12 @@ describe('SP-API Connection Test', () => {
 
   it('should successfully exchange refresh token for access token', async () => {
     console.log('\n🔄 Testing token exchange...\n');
-    
+
     const testRunner = new SpApiTestRunner(credentials);
     const result = await testRunner.runSingleTest('token-exchange');
 
     console.log('Token Exchange Result:', JSON.stringify(result, null, 2));
-    
+
     expect(result).toBeTruthy();
     expect(result?.status).toBe('success');
     expect(result?.message).toContain('Successfully exchanged refresh token');
@@ -43,24 +44,24 @@ describe('SP-API Connection Test', () => {
 
   it('should verify marketplace access', async () => {
     console.log('\n🌐 Testing marketplace access...\n');
-    
+
     const testRunner = new SpApiTestRunner(credentials);
-    
+
     // First get the access token
     await testRunner.runSingleTest('token-exchange');
-    
+
     // Then test marketplace access
     const result = await testRunner.runSingleTest('marketplace-participations');
 
     console.log('Marketplace Access Result:', JSON.stringify(result, null, 2));
-    
+
     expect(result).toBeTruthy();
     expect(result?.status).toBe('success');
   }, { timeout: 15000 });
 
   it('should run all SP-API health checks', async () => {
     console.log('\n🏥 Running full SP-API health check...\n');
-    
+
     const testRunner = new SpApiTestRunner(credentials);
     const results = await testRunner.runAllTests();
 
@@ -74,7 +75,7 @@ describe('SP-API Connection Test', () => {
     console.log(`  Successful: ${results.summary.successfulSteps}`);
     console.log(`  Failed: ${results.summary.failedSteps}`);
     console.log(`  Total Duration: ${results.summary.totalDuration}ms`);
-    
+
     console.log('\n📝 Individual Test Results:');
     results.steps.forEach((step, index) => {
       console.log(`\n${index + 1}. ${step.step}`);
@@ -87,7 +88,7 @@ describe('SP-API Connection Test', () => {
         console.log(`   Details: ${JSON.stringify(step.details, null, 2)}`);
       }
     });
-    
+
     console.log('\n========================\n');
 
     expect(results).toBeTruthy();

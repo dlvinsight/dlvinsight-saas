@@ -1,4 +1,5 @@
 import 'dotenv/config';
+
 import SellingPartnerAPI from 'amazon-sp-api';
 
 async function testSpApiWithSDK() {
@@ -23,8 +24,8 @@ async function testSpApiWithSDK() {
         SELLING_PARTNER_APP_CLIENT_SECRET: clientSecret,
       },
       options: {
-        sandbox: true, // Use sandbox environment
-        debug_log: true,
+        use_sandbox: true, // Use sandbox environment
+        auto_request_tokens: true,
       },
       endpoints_versions: {
         sellers: '2021-12-01',
@@ -34,7 +35,7 @@ async function testSpApiWithSDK() {
 
     // Test marketplace participations first
     console.log('📋 Testing marketplace participations...\n');
-    
+
     const marketplaceResponse = await spApi.callAPI({
       operation: 'getMarketplaceParticipations',
       endpoint: 'sellers',
@@ -45,7 +46,7 @@ async function testSpApiWithSDK() {
 
     // Test catalog item retrieval
     console.log('\n📋 Testing catalog API with ASIN B07N4M94X4...\n');
-    
+
     const catalogResponse = await spApi.callAPI({
       operation: 'getCatalogItem',
       endpoint: 'catalogItems',
@@ -60,8 +61,7 @@ async function testSpApiWithSDK() {
 
     console.log('✅ Catalog API Response:');
     console.log(JSON.stringify(catalogResponse, null, 2));
-
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Error:', error);
     if (error.response) {
       console.error('Response data:', error.response.data);

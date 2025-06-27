@@ -1,9 +1,10 @@
 import 'dotenv/config';
+
 import type { SpApiCredentials } from './src/app/[locale]/(auth)/dashboard/test-api/types';
 
 async function testSpApiSpecificAsin() {
   console.log('🚀 Testing SP-API with specific ASIN B07N4M94X4...\n');
-  
+
   // Use sandbox credentials from .env.local
   const clientId = process.env.NEXT_PUBLIC_AMAZON_SANDBOX_CLIENT_ID;
   const clientSecret = process.env.NEXT_PUBLIC_AMAZON_SANDBOX_CLIENT_SECRET;
@@ -26,48 +27,48 @@ async function testSpApiSpecificAsin() {
   try {
     // Step 1: Get access token
     console.log('📋 Step 1: Exchanging refresh token for access token...');
-    
+
     const { exchangeRefreshTokenForAccess } = await import('./src/libs/amazon-sp-api');
     const tokenResult = await exchangeRefreshTokenForAccess(
       credentials.refreshToken,
       credentials.clientId,
       credentials.clientSecret,
     );
-    
+
     console.log('✅ Access token obtained');
     console.log(`   Expires in: ${tokenResult.expiresIn} seconds\n`);
 
     // Step 2: Get catalog item with exact sandbox parameters
     console.log('📋 Step 2: Fetching catalog item B07N4M94X4...\n');
-    
+
     const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '').replace(/T/, '');
-    
+
     // Use the exact includedData from sandbox specification
     const includedData = [
       'classifications',
-      'dimensions', 
+      'dimensions',
       'identifiers',
       'images',
       'productTypes',
       'relationships',
       'salesRanks',
       'summaries',
-      'vendorDetails'
+      'vendorDetails',
     ];
-    
+
     // Build URL with all parameters
     const searchParams = new URLSearchParams({
       marketplaceIds: credentials.marketplaceId,
     });
-    
+
     // Add each includedData parameter separately (as per API spec)
-    includedData.forEach(data => {
+    includedData.forEach((data) => {
       searchParams.append('includedData', data);
     });
-    
+
     const asin = 'B07N4M94X4';
     const catalogUrl = `${credentials.endpoint}/catalog/2022-04-01/items/${asin}?${searchParams.toString()}`;
-    
+
     console.log('🔍 Request Details:');
     console.log(`   URL: ${catalogUrl}`);
     console.log(`   ASIN: ${asin}`);
@@ -85,15 +86,15 @@ async function testSpApiSpecificAsin() {
     });
 
     console.log(`📡 Response Status: ${response.status} ${response.statusText}`);
-    
+
     const responseText = await response.text();
-    
+
     if (response.ok) {
       const data = JSON.parse(responseText);
-      
+
       console.log('\n✅ Product Details Retrieved Successfully!\n');
       console.log(`📦 ASIN: ${data.asin}`);
-      
+
       // Extract and display summaries
       if (data.summaries) {
         const summary = data.summaries.find((s: any) => s.marketplaceId === credentials.marketplaceId);
@@ -104,7 +105,7 @@ async function testSpApiSpecificAsin() {
           console.log(`   Manufacturer: ${summary.manufacturer || 'N/A'}`);
         }
       }
-      
+
       // Extract and display classifications
       if (data.classifications) {
         const classification = data.classifications.find((c: any) => c.marketplaceId === credentials.marketplaceId);
@@ -119,7 +120,7 @@ async function testSpApiSpecificAsin() {
           console.log(`   ${categories.join(' > ')}`);
         }
       }
-      
+
       // Extract and display dimensions
       if (data.dimensions) {
         const dimensions = data.dimensions.find((d: any) => d.marketplaceId === credentials.marketplaceId);
@@ -134,7 +135,7 @@ async function testSpApiSpecificAsin() {
           }
         }
       }
-      
+
       // Extract and display images
       if (data.images) {
         const images = data.images.find((i: any) => i.marketplaceId === credentials.marketplaceId);
@@ -143,7 +144,7 @@ async function testSpApiSpecificAsin() {
           console.log(`   Main Image: ${images.images[0].link}`);
         }
       }
-      
+
       // Extract and display sales ranks
       if (data.salesRanks) {
         const salesRanks = data.salesRanks.find((s: any) => s.marketplaceId === credentials.marketplaceId);
@@ -154,7 +155,7 @@ async function testSpApiSpecificAsin() {
           });
         }
       }
-      
+
       // Extract and display identifiers
       if (data.identifiers) {
         const identifiers = data.identifiers.find((i: any) => i.marketplaceId === credentials.marketplaceId);
@@ -165,14 +166,13 @@ async function testSpApiSpecificAsin() {
           });
         }
       }
-      
+
       console.log('\n📄 Full Response:');
       console.log(JSON.stringify(data, null, 2));
-      
     } else {
       console.log('\n❌ Request failed');
       console.log('   Error Response:', responseText);
-      
+
       // Try to parse error details
       try {
         const errorData = JSON.parse(responseText);
@@ -180,16 +180,17 @@ async function testSpApiSpecificAsin() {
           console.log('\n📋 Error Details:');
           errorData.errors.forEach((err: any) => {
             console.log(`   - ${err.code}: ${err.message}`);
-            if (err.details) console.log(`     Details: ${err.details}`);
+            if (err.details) {
+              console.log(`     Details: ${err.details}`);
+            }
           });
         }
       } catch (e) {
         // Response wasn't JSON
       }
     }
-    
+
     console.log('\n✅ Test completed!\n');
-    
   } catch (error) {
     console.error('\n❌ Test failed with error:');
     console.error(error);

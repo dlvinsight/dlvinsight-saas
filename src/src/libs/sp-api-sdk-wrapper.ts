@@ -1,12 +1,12 @@
 import SellingPartnerAPI from 'amazon-sp-api';
 
-export interface SpApiConfig {
+export type SpApiConfig = {
   clientId: string;
   clientSecret: string;
   refreshToken: string;
   region?: 'na' | 'eu' | 'fe';
   sandbox?: boolean;
-}
+};
 
 export class SpApiClient {
   private client: SellingPartnerAPI;
@@ -20,8 +20,8 @@ export class SpApiClient {
         SELLING_PARTNER_APP_CLIENT_SECRET: config.clientSecret,
       },
       options: {
-        sandbox: config.sandbox || false,
-        debug_log: false,
+        use_sandbox: config.sandbox || false,
+        auto_request_tokens: true,
       },
     });
   }
@@ -39,8 +39,8 @@ export class SpApiClient {
       });
       return { success: true, data: response };
     } catch (error: any) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: error.message || 'Failed to fetch catalog item',
         details: error.response?.data,
       };
@@ -55,8 +55,8 @@ export class SpApiClient {
       });
       return { success: true, data: response };
     } catch (error: any) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: error.message || 'Failed to fetch marketplace participations',
         details: error.response?.data,
       };
@@ -76,8 +76,8 @@ export class SpApiClient {
       });
       return { success: true, data: response };
     } catch (error: any) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: error.message || 'Failed to search catalog items',
         details: error.response?.data,
       };

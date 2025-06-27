@@ -102,7 +102,7 @@ export const Footer = () => {
         </li>
 
         <li>
-          <Link href="/sign-up">{t('company')}</Link>
+          <Link href="/company">{t('company')}</Link>
         </li>
       </CenteredFooter>
     </Section>
